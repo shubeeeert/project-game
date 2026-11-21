@@ -1,0 +1,642 @@
+WARNING: res://scenes/rooms/room_normal.tscn:4 - ext_resource, invalid UID: uid://dgt8g1fru2ggn - using text path instead: res://scenes/enemies/Enemy.tscn
+   at: load (scene/resources/resource_format_text.cpp:501)
+WARNING: res://scenes/rooms/room_boss.tscn:4 - ext_resource, invalid UID: uid://dgt8g1fru2ggn - using text path instead: res://scenes/enemies/Enemy.tscn
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:116)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: String formatting error: not all arguments converted during string formatting.
+   at: validated_evaluate (core/variant/variant_op.h:770)
+   GDScript backtrace (most recent call first):
+       [0] _validate_locks (res://tests/cases/test_graph_doors_locks.gd:117)
+       [1] _validate_floor (res://tests/cases/test_graph_doors_locks.gd:59)
+       [2] run (res://tests/cases/test_graph_doors_locks.gd:19)
+       [3] execute (res://tests/framework/test_case.gd:25)
+       [4] _run_case (res://tests/test_runner.gd:65)
+       [5] _initialize (res://tests/test_runner.gd:28)
+ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] from_json (res://scripts/generation/serialization/floor_serializer.gd:11)
+       [1] run (res://tests/cases/test_serialization.gd:30)
+       [2] execute (res://tests/framework/test_case.gd:25)
+       [3] _run_case (res://tests/test_runner.gd:65)
+       [4] _initialize (res://tests/test_runner.gd:28)

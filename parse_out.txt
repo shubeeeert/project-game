@@ -1,0 +1,154 @@
+﻿Godot Engine v4.7.2.stable.steam.ed1daf0bf - https://godotengine.org
+
+OK: res://obstacle.gd
+OK: res://scripts/chaotic_enemy.gd
+OK: res://scripts/death_screen.gd
+OK: res://scripts/elemental_reactions.gd
+OK: res://scripts/elements.gd
+OK: res://scripts/enemy.gd
+OK: res://scripts/enemy_bullet.gd
+OK: res://scripts/entity_visuals.gd
+godot.windows.opt.tools.64.exe : ERROR: Cannot reload script while instances exist.
+строка:1 знак:1
++ & 'E:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.to ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR: Cannot r...nstances exist.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   at: reload (modules/gdscript/gdscript.cpp:754)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/tools/parse_check.gd:70)
+OK: res://scripts/game_manager.gd
+OK: res://scripts/generation/ai/ai_cell_picker.gd
+OK: res://scripts/generation/ai/ai_entity_placer.gd
+OK: res://scripts/generation/ai/ai_interior_generator.gd
+OK: res://scripts/generation/ai/ai_model_runtime.gd
+OK: res://scripts/generation/ai/ai_structure_generator.gd
+OK: res://scripts/generation/contracts/i_generation_algorithm.gd
+OK: res://scripts/generation/core/deterministic_rng.gd
+OK: res://scripts/generation/core/generation_config.gd
+OK: res://scripts/generation/core/generation_types.gd
+OK: res://scripts/generation/core/stable_ids.gd
+OK: res://scripts/generation/engine/generation_data_loader.gd
+OK: res://scripts/generation/engine/generation_profiler.gd
+OK: res://scripts/generation/engine/room_payload_adapter.gd
+OK: res://scripts/generation/engine/room_scene_bridge.gd
+OK: res://scripts/generation/entities/cell_picker.gd
+OK: res://scripts/generation/entities/entity_budget.gd
+OK: res://scripts/generation/entities/entity_factory.gd
+OK: res://scripts/generation/entities/entity_placer.gd
+OK: res://scripts/generation/entities/entity_pools.gd
+OK: res://scripts/generation/entities/key_placer.gd
+OK: res://scripts/generation/entities/safe_zone_builder.gd
+OK: res://scripts/generation/entities/special_room_placer.gd
+OK: res://scripts/generation/floor/door_builder.gd
+OK: res://scripts/generation/floor/graph_metrics.gd
+OK: res://scripts/generation/floor/lock_key_planner.gd
+OK: res://scripts/generation/floor/room_role_assigner.gd
+OK: res://scripts/generation/floor/spine_branch_generator.gd
+OK: res://scripts/generation/floor_generator.gd
+OK: res://scripts/generation/generator_factory.gd
+OK: res://scripts/generation/interior/interior_generator.gd
+OK: res://scripts/generation/interior/room_template.gd
+OK: res://scripts/generation/interior/template_repository.gd
+OK: res://scripts/generation/interior/template_selector.gd
+OK: res://scripts/generation/interior/walkability_solver.gd
+OK: res://scripts/generation/run_generator.gd
+OK: res://scripts/generation/serialization/floor_serializer.gd
+OK: res://scripts/generation/serialization/graph_hasher.gd
+OK: res://scripts/generation/validation/entity_validator.gd
+OK: res://scripts/generation/validation/floor_graph_validator.gd
+OK: res://scripts/generation/validation/floor_repairer.gd
+OK: res://scripts/generation/validation/i_validator.gd
+OK: res://scripts/generation/validation/interior_validator.gd
+OK: res://scripts/generation/validation/lock_key_validator.gd
+OK: res://scripts/generation/validation/performance_validator.gd
+OK: res://scripts/generation/validation/retry_policy.gd
+OK: res://scripts/generation/validation/validation_report.gd
+OK: res://scripts/generation/validation/validator_registry.gd
+OK: res://scripts/health_component.gd
+OK: res://scripts/hitbox_component.gd
+OK: res://scripts/hurtbox_component.gd
+OK: res://scripts/items.gd
+OK: res://scripts/jumping_enemy.gd
+OK: res://scripts/level_up_menu.gd
+OK: res://scripts/main.gd
+OK: res://scripts/main_menu.gd
+ERROR: Cannot reload script while instances exist.
+   at: reload (modules/gdscript/gdscript.cpp:754)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/tools/parse_check.gd:70)
+OK: res://scripts/map_generator.gd
+OK: res://scripts/minimap.gd
+OK: res://scripts/player.gd
+OK: res://scripts/room.gd
+OK: res://scripts/room_feature.gd
+OK: res://scripts/room_grid.gd
+ERROR: Cannot reload script while instances exist.
+   at: reload (modules/gdscript/gdscript.cpp:754)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/tools/parse_check.gd:70)
+OK: res://scripts/room_manager.gd
+OK: res://scripts/shooting_enemy.gd
+OK: res://scripts/skill.gd
+OK: res://scripts/skill_bar.gd
+OK: res://scripts/skill_icon.gd
+OK: res://scripts/skill_library.gd
+OK: res://scripts/skill_manager.gd
+OK: res://scripts/skill_visuals.gd
+OK: res://scripts/skills/earth_pulse_skill.gd
+OK: res://scripts/skills/fireball_skill.gd
+OK: res://scripts/skills/ice_slash_skill.gd
+OK: res://scripts/skills/skill_projectile.gd
+OK: res://scripts/skills/wind_dash_skill.gd
+OK: res://scripts/skills/wind_dash_tracker.gd
+OK: res://scripts/sword_trail.gd
+OK: res://scripts/ui.gd
+OK: res://tests/cases/test_adapter.gd
+OK: res://tests/cases/test_ai_models.gd
+OK: res://tests/cases/test_config.gd
+OK: res://tests/cases/test_determinism.gd
+OK: res://tests/cases/test_enemy_navigation.gd
+OK: res://tests/cases/test_entities.gd
+OK: res://tests/cases/test_graph_doors_locks.gd
+OK: res://tests/cases/test_interiors.gd
+OK: res://tests/cases/test_items_stats.gd
+OK: res://tests/cases/test_new_enemies.gd
+OK: res://tests/cases/test_performance.gd
+OK: res://tests/cases/test_rng.gd
+OK: res://tests/cases/test_room_adjacency.gd
+OK: res://tests/cases/test_serialization.gd
+OK: res://tests/cases/test_skills.gd
+OK: res://tests/framework/fixtures.gd
+OK: res://tests/framework/test_case.gd
+OK: res://tests/test_runner.gd
+OK: res://tests/tools/game_smoke.gd
+OK: res://tests/tools/run_tests_in_editor.gd
+=== PARSE CHECK ===
+files=106 errors=0
+{
+  "files": 106,
+  "status": "PASS"
+}
+=== GAME MANAGER READY ===
+=== MAP GENERATED ===
+seed=0 floor=1 status=PASS rooms=11 time_ms=24.349
+  (1, 4) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=4 obstacles=4
+  (1, 5) -> normal doors={ "up": true, "down": true, "left": true, "right": false } enemies=4 obstacles=2
+  (1, 6) -> normal doors={ "up": true, "down": false, "left": false, "right": false } enemies=0 obstacles=4
+  (0, 5) -> normal doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (2, 3) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=3
+  (2, 2) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=3 obstacles=2
+  (2, 4) -> start doors={ "up": true, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (3, 2) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=4
+  (3, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=0
+  (3, 0) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (4, 2) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+[MCP Runtime] _ready() ENTERED тАФ autoload instantiated successfully
+[MCP Runtime] Loaded and ready for IPC
+[MCP Runtime] IPC base dir: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/
+[MCP Runtime] Request path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_request.json
+[MCP Runtime] Response path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_response.json
+[MCP Runtime] Ready file: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_ready
+[MCP Runtime] Handshake file written successfully
+[MCP Runtime] _poll_ipc() тАФ path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_request.json, exists: false

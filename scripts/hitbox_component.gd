@@ -1,0 +1,7 @@
+class_name HitboxComponent
+extends Area2D
+
+@export var damage: int = 10
+
+func _ready() -> void:
+	pass

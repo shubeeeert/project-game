@@ -1,0 +1,320 @@
+﻿Godot Engine v4.7.2.stable.steam.ed1daf0bf - https://godotengine.org
+
+=== MAP GENERATED ===
+seed=4242 floor=2 status=PASS rooms=14 time_ms=35.866
+  (0, 3) -> normal doors={ "up": false, "down": false, "left": false, "right": true } enemies=3 obstacles=5
+  (1, 6) -> normal doors={ "up": true, "down": true, "left": false, "right": true } enemies=4 obstacles=2
+  (1, 5) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (1, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=4
+  (1, 3) -> normal doors={ "up": false, "down": true, "left": true, "right": true } enemies=0 obstacles=7
+  (1, 7) -> start doors={ "up": true, "down": true, "left": false, "right": false } enemies=0 obstacles=0
+  (1, 8) -> normal doors={ "up": true, "down": false, "left": false, "right": false } enemies=0 obstacles=4
+  (2, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (2, 3) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=3
+  (2, 2) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=5
+  (2, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=5
+  (2, 0) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (3, 3) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=5
+  (4, 3) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+Room marked as cleared: (1, 7)
+Room discovered: (1, 6)
+=== MAP GENERATED ===
+seed=4242 floor=2 status=PASS rooms=14 time_ms=37.001
+  (0, 3) -> normal doors={ "up": false, "down": false, "left": false, "right": true } enemies=3 obstacles=5
+  (1, 6) -> normal doors={ "up": true, "down": true, "left": false, "right": true } enemies=4 obstacles=2
+  (1, 5) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (1, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=4
+  (1, 3) -> normal doors={ "up": false, "down": true, "left": true, "right": true } enemies=0 obstacles=7
+  (1, 7) -> start doors={ "up": true, "down": true, "left": false, "right": false } enemies=0 obstacles=0
+  (1, 8) -> normal doors={ "up": true, "down": false, "left": false, "right": false } enemies=0 obstacles=4
+  (2, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (2, 3) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=3
+  (2, 2) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=5
+  (2, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=5
+  (2, 0) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (3, 3) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=5
+  (4, 3) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+=== MAP GENERATED ===
+seed=1234 floor=1 status=PASS rooms=10 time_ms=28.805
+  (0, 5) -> start doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (1, 4) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (1, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=1
+  (2, 5) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=7
+  (3, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=0
+  (3, 3) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=0
+  (3, 2) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (3, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=2
+  (3, 0) -> normal doors={ "up": false, "down": true, "left": false, "right": false } enemies=0 obstacles=0
+  (3, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": false } enemies=3 obstacles=3
+=== MAP GENERATED ===
+seed=1234 floor=2 status=PASS rooms=11 time_ms=29.29
+  (0, 0) -> start doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (1, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=4
+  (2, 0) -> normal doors={ "up": false, "down": true, "left": true, "right": true } enemies=0 obstacles=1
+  (2, 1) -> normal doors={ "up": true, "down": false, "left": false, "right": false } enemies=0 obstacles=0
+  (3, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=4
+  (4, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=4
+  (5, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=5
+  (6, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=4
+  (7, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=1
+  (8, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=3
+  (9, 0) -> boss doors={ "up": false, "down": false, "left": true, "right": false } enemies=1 obstacles=0
+=== MAP GENERATED ===
+seed=1234 floor=1 status=PASS rooms=10 time_ms=28.746
+  (0, 5) -> start doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (1, 4) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (1, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=1
+  (2, 5) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=7
+  (3, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=0
+  (3, 3) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=0
+  (3, 2) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (3, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=2
+  (3, 0) -> normal doors={ "up": false, "down": true, "left": false, "right": false } enemies=0 obstacles=0
+  (3, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": false } enemies=3 obstacles=3
+=== MAP GENERATED ===
+seed=1234 floor=1 status=PASS rooms=10 time_ms=24.796
+  (0, 5) -> start doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (1, 4) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (1, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=1
+  (2, 5) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=7
+  (3, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=0
+  (3, 3) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=0
+  (3, 2) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (3, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=2
+  (3, 0) -> normal doors={ "up": false, "down": true, "left": false, "right": false } enemies=0 obstacles=0
+  (3, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": false } enemies=3 obstacles=3
+=== MAP GENERATED ===
+seed=1234 floor=1 status=PASS rooms=10 time_ms=20.519
+  (0, 5) -> start doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (1, 4) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (1, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=1
+  (2, 5) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=7
+  (3, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=0
+  (3, 3) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=0
+  (3, 2) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (3, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=2
+  (3, 0) -> normal doors={ "up": false, "down": true, "left": false, "right": false } enemies=0 obstacles=0
+  (3, 5) -> normal doors={ "up": true, "down": false, "left": true, "right": false } enemies=3 obstacles=3
+=== MAP GENERATED ===
+seed=1235 floor=1 status=PASS rooms=9 time_ms=18.06
+  (0, 0) -> start doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (1, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=2
+  (2, 0) -> normal doors={ "up": false, "down": true, "left": true, "right": true } enemies=0 obstacles=0
+  (2, 1) -> normal doors={ "up": true, "down": false, "left": false, "right": false } enemies=0 obstacles=0
+  (3, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=2
+  (4, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=5
+  (5, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=3
+  (6, 0) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=3 obstacles=4
+  (7, 0) -> boss doors={ "up": false, "down": false, "left": true, "right": false } enemies=1 obstacles=0
+Boss room added at: (0, 6) (dead-end)
+=== MAP GENERATED ===
+seed=909 floor=1 status= rooms=10 time_ms=0.0
+  (3, 3) -> start doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (2, 3) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=6 obstacles=2
+  (1, 3) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=4 obstacles=4
+  (1, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=3 obstacles=2
+  (1, 5) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (1, 6) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=6 obstacles=3
+  (2, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=6 obstacles=4
+  (3, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=2
+  (4, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=4 obstacles=5
+  (0, 6) -> boss doors={ "up": false, "down": false, "left": false, "right": true } enemies=1 obstacles=0
+Boss room added at: (0, 6) (dead-end)
+=== MAP GENERATED ===
+seed=909 floor=1 status= rooms=10 time_ms=0.0
+  (3, 3) -> start doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (2, 3) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=6 obstacles=2
+  (1, 3) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=4 obstacles=4
+  (1, 4) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=3 obstacles=2
+  (1, 5) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=3
+  (1, 6) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=6 obstacles=3
+  (2, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=6 obstacles=4
+  (3, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": true } enemies=4 obstacles=2
+  (4, 6) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=4 obstacles=5
+  (0, 6) -> boss doors={ "up": false, "down": false, "left": false, "right": true } enemies=1 obstacles=0
+Could not add boss as dead-end, using fallback
+Boss room (fallback) at: (2, 3)
+=== MAP GENERATED ===
+seed=910 floor=1 status= rooms=9 time_ms=0.0
+  (3, 3) -> start doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (2, 3) -> boss doors={ "up": true, "down": false, "left": false, "right": true } enemies=1 obstacles=0
+  (2, 2) -> normal doors={ "up": false, "down": true, "left": true, "right": false } enemies=5 obstacles=4
+  (1, 2) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=4 obstacles=2
+  (0, 2) -> normal doors={ "up": true, "down": false, "left": false, "right": true } enemies=6 obstacles=4
+  (0, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": true } enemies=3 obstacles=5
+  (1, 1) -> normal doors={ "up": true, "down": true, "left": true, "right": false } enemies=6 obstacles=2
+  (1, 0) -> normal doors={ "up": false, "down": true, "left": true, "right": false } enemies=6 obstacles=5
+  (0, 0) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=5 obstacles=4
+PASS test_adapter             checks=6197 failures=0  2573.46 ms
+PASS test_ai_models           checks=3683 failures=0  895.86 ms
+PASS test_config              checks=23  failures=0  4.97 ms
+PASS test_determinism         checks=107 failures=0  3325.37 ms
+PASS test_enemy_navigation    checks=56  failures=0  2.50 ms
+PASS test_entities            checks=4405 failures=0  644.57 ms
+PASS test_graph_doors_locks   checks=1444 failures=0  650.61 ms
+PASS test_interiors           checks=17665 failures=0  910.73 ms
+PASS test_items_stats         checks=1283 failures=0  2598.63 ms
+PASS test_new_enemies         checks=90  failures=0  2706.35 ms
+       floor=1 seeds=100 mean=22.74 ms p95=27.75 ms max=28.88 ms
+       floor=2 seeds=100 mean=28.70 ms p95=37.65 ms max=40.31 ms
+       floor=3 seeds=100 mean=33.13 ms p95=44.38 ms max=49.68 ms
+PASS test_performance         checks=12  failures=0  8508.17 ms
+PASS test_rng                 checks=17  failures=0  4.00 ms
+PASS test_room_adjacency      checks=7534 failures=0  2767.61 ms
+godot.windows.opt.tools.64.exe : ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'n
+ot'
+строка:1 знак:1
++ & 'E:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.to ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR: Parse JS...ull', got 'not':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] from_json (res://scripts/generation/serialization/floor_serializer.gd:11)
+       [1] run (res://tests/cases/test_serialization.gd:30)
+       [2] execute (res://tests/framework/test_case.gd:25)
+       [3] _run_case (res://tests/test_runner.gd:65)
+       [4] _initialize (res://tests/test_runner.gd:28)
+PASS test_serialization       checks=16  failures=0  66.93 ms
+PASS test_skills              checks=36  failures=0  0.30 ms
+=== TEST REPORT ===
+{
+  "duration_ms": 26041.092,
+  "executed": 15,
+  "failed": 0,
+  "status": "PASS",
+  "tests": [
+    {
+      "checks": 6197,
+      "duration_ms": 2573.464,
+      "failures": [],
+      "name": "test_adapter",
+      "passed": true
+    },
+    {
+      "checks": 3683,
+      "duration_ms": 895.861,
+      "failures": [],
+      "name": "test_ai_models",
+      "passed": true
+    },
+    {
+      "checks": 23,
+      "duration_ms": 4.967,
+      "failures": [],
+      "name": "test_config",
+      "passed": true
+    },
+    {
+      "checks": 107,
+      "duration_ms": 3325.374,
+      "failures": [],
+      "name": "test_determinism",
+      "passed": true
+    },
+    {
+      "checks": 56,
+      "duration_ms": 2.501,
+      "failures": [],
+      "name": "test_enemy_navigation",
+      "passed": true
+    },
+    {
+      "checks": 4405,
+      "duration_ms": 644.573,
+      "failures": [],
+      "name": "test_entities",
+      "passed": true
+    },
+    {
+      "checks": 1444,
+      "duration_ms": 650.607,
+      "failures": [],
+      "name": "test_graph_doors_locks",
+      "passed": true
+    },
+    {
+      "checks": 17665,
+      "duration_ms": 910.731,
+      "failures": [],
+      "name": "test_interiors",
+      "passed": true
+    },
+    {
+      "checks": 1283,
+      "duration_ms": 2598.63,
+      "failures": [],
+      "name": "test_items_stats",
+      "passed": true
+    },
+    {
+      "checks": 90,
+      "duration_ms": 2706.346,
+      "failures": [],
+      "name": "test_new_enemies",
+      "passed": true
+    },
+    {
+      "checks": 12,
+      "duration_ms": 8508.168,
+      "failures": [],
+      "name": "test_performance",
+      "passed": true
+    },
+    {
+      "checks": 17,
+      "duration_ms": 3.996,
+      "failures": [],
+      "name": "test_rng",
+      "passed": true
+    },
+    {
+      "checks": 7534,
+      "duration_ms": 2767.614,
+      "failures": [],
+      "name": "test_room_adjacency",
+      "passed": true
+    },
+    {
+      "checks": 16,
+      "duration_ms": 66.926,
+      "failures": [],
+      "name": "test_serialization",
+      "passed": true
+    },
+    {
+      "checks": 36,
+      "duration_ms": 0.3,
+      "failures": [],
+      "name": "test_skills",
+      "passed": true
+    }
+  ]
+}
+=== GAME MANAGER READY ===
+=== MAP GENERATED ===
+seed=0 floor=1 status=PASS rooms=11 time_ms=20.028
+  (1, 4) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=4 obstacles=4
+  (1, 5) -> normal doors={ "up": true, "down": true, "left": true, "right": false } enemies=4 obstacles=2
+  (1, 6) -> normal doors={ "up": true, "down": false, "left": false, "right": false } enemies=0 obstacles=4
+  (0, 5) -> normal doors={ "up": false, "down": false, "left": false, "right": true } enemies=0 obstacles=0
+  (2, 3) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=5 obstacles=3
+  (2, 2) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=3 obstacles=2
+  (2, 4) -> start doors={ "up": true, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (3, 2) -> normal doors={ "up": true, "down": false, "left": true, "right": true } enemies=0 obstacles=4
+  (3, 1) -> normal doors={ "up": true, "down": true, "left": false, "right": false } enemies=6 obstacles=0
+  (3, 0) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (4, 2) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+[MCP Runtime] _ready() ENTERED тАФ autoload instantiated successfully
+[MCP Runtime] Loaded and ready for IPC
+[MCP Runtime] IPC base dir: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/
+[MCP Runtime] Request path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_request.json
+[MCP Runtime] Response path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_response.json
+[MCP Runtime] Ready file: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_ready
+[MCP Runtime] Handshake file written successfully
+[MCP Runtime] _poll_ipc() тАФ path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_request.json, exists: false
+WARNING: 8 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

@@ -1,0 +1,573 @@
+{
+  "allowed_room_types": [
+    "START",
+    "NORMAL",
+    "TREASURE",
+    "BOSS",
+    "SHOP"
+  ],
+  "budget_profiles": {
+    "easy": {
+      "base": 24.0,
+      "depth_growth": 0.04,
+      "hard_limit": 45.0,
+      "hard_mode": false
+    },
+    "hard": {
+      "base": 38.0,
+      "depth_growth": 0.07,
+      "hard_limit": 72.0,
+      "hard_mode": true
+    },
+    "normal": {
+      "base": 30.0,
+      "depth_growth": 0.05,
+      "hard_limit": 60.0,
+      "hard_mode": false
+    }
+  },
+  "enemy_catalog": [
+    {
+      "id": "crawler",
+      "kind": "normal",
+      "max_floor": 3.0,
+      "min_floor": 1.0,
+      "name": "Crawler",
+      "spawn_weight": 1.0,
+      "tags": [
+        "melee"
+      ],
+      "threat_cost": 3.0
+    },
+    {
+      "id": "bat",
+      "kind": "fast",
+      "max_floor": 2.0,
+      "min_floor": 1.0,
+      "name": "Bat",
+      "spawn_weight": 1.2,
+      "tags": [
+        "fast",
+        "flyer"
+      ],
+      "threat_cost": 2.0
+    },
+    {
+      "id": "spitter",
+      "kind": "normal",
+      "max_floor": 3.0,
+      "min_floor": 1.0,
+      "name": "Spitter",
+      "spawn_weight": 0.9,
+      "tags": [
+        "ranged"
+      ],
+      "threat_cost": 4.0
+    },
+    {
+      "id": "charger",
+      "kind": "fast",
+      "max_floor": 3.0,
+      "min_floor": 2.0,
+      "name": "Charger",
+      "spawn_weight": 0.8,
+      "tags": [
+        "fast",
+        "melee"
+      ],
+      "threat_cost": 5.0
+    },
+    {
+      "id": "brute",
+      "kind": "elite",
+      "max_floor": 3.0,
+      "min_floor": 2.0,
+      "name": "Brute",
+      "spawn_weight": 0.5,
+      "tags": [
+        "elite",
+        "melee"
+      ],
+      "threat_cost": 8.0
+    },
+    {
+      "id": "sentinel",
+      "kind": "elite",
+      "max_floor": 3.0,
+      "min_floor": 3.0,
+      "name": "Sentinel",
+      "spawn_weight": 0.4,
+      "tags": [
+        "elite",
+        "ranged"
+      ],
+      "threat_cost": 10.0
+    },
+    {
+      "id": "shooting_enemy",
+      "kind": "shooting",
+      "max_floor": 3.0,
+      "min_floor": 1.0,
+      "name": "Shooting Slime",
+      "spawn_weight": 0.8,
+      "tags": [
+        "ranged"
+      ],
+      "threat_cost": 4.0
+    },
+    {
+      "id": "jumping_enemy",
+      "kind": "jumping",
+      "max_floor": 3.0,
+      "min_floor": 1.0,
+      "name": "Jumping Slime",
+      "spawn_weight": 0.8,
+      "tags": [
+        "melee"
+      ],
+      "threat_cost": 4.0
+    },
+    {
+      "id": "chaotic_enemy",
+      "kind": "chaotic",
+      "max_floor": 3.0,
+      "min_floor": 1.0,
+      "name": "Chaotic Slime",
+      "spawn_weight": 0.9,
+      "tags": [
+        "melee"
+      ],
+      "threat_cost": 3.0
+    },
+    {
+      "id": "miniboss_warden",
+      "kind": "miniboss",
+      "max_floor": 3.0,
+      "min_floor": 2.0,
+      "name": "Warden",
+      "spawn_weight": 1.0,
+      "tags": [
+        "miniboss",
+        "elite"
+      ],
+      "threat_cost": 16.0
+    },
+    {
+      "id": "boss_basement",
+      "kind": "boss",
+      "max_floor": 3.0,
+      "min_floor": 1.0,
+      "name": "Basement Lord",
+      "spawn_weight": 1.0,
+      "tags": [
+        "boss"
+      ],
+      "threat_cost": 30.0
+    }
+  ],
+  "floors": [
+    {
+      "budget": {
+        "mean_per_room": 30.0212765957447,
+        "spent_per_room": 10.7354301572618,
+        "utilization_pct": 35.7594059100854
+      },
+      "critical_path": {
+        "max": 10.0,
+        "mean": 5.65,
+        "min": 3.0
+      },
+      "critical_path_room_types_per_floor": {
+        "BOSS": 1.0,
+        "NORMAL": 3.65,
+        "START": 1.0
+      },
+      "enemies": {
+        "max": 27.0,
+        "mean": 15.67,
+        "min": 7.0
+      },
+      "enemies_by_id_per_floor": {
+        "bat": 5.68,
+        "boss_basement": 1.0,
+        "crawler": 4.8,
+        "spitter": 4.19
+      },
+      "enemy_kinds_per_floor": {
+        "boss": 1.0,
+        "fast": 5.68,
+        "normal": 8.99
+      },
+      "failures": 0,
+      "fallbacks": 0,
+      "floor_index": 1,
+      "items": {
+        "max": 5.0,
+        "mean": 3.84,
+        "min": 1.0
+      },
+      "items_by_id_per_floor": {
+        "common_item": 1.0,
+        "shop_goods": 2.13,
+        "shop_key": 0.71
+      },
+      "keys": {
+        "max": 0.0,
+        "mean": 0.0,
+        "min": 0.0
+      },
+      "locks": {
+        "max": 0.0,
+        "mean": 0.0,
+        "min": 0.0
+      },
+      "npcs": {
+        "max": 23.0,
+        "mean": 11.9,
+        "min": 5.0
+      },
+      "retried": 0,
+      "room_types_per_floor": {
+        "BOSS": 1.0,
+        "NORMAL": 7.1,
+        "SHOP": 0.71,
+        "START": 1.0,
+        "TREASURE": 1.0
+      },
+      "rooms": {
+        "max": 13.0,
+        "mean": 10.81,
+        "min": 9.0
+      },
+      "seeds": 100,
+      "traps": {
+        "max": 4.0,
+        "mean": 1.15,
+        "min": 0.0
+      },
+      "traps_by_id_per_floor": {
+        "poison_vent": 0.54,
+        "spikes_small": 0.61
+      },
+      "unexpected_room_types": 0
+    },
+    {
+      "budget": {
+        "mean_per_room": 46.1225854383358,
+        "spent_per_room": 13.1136701337296,
+        "utilization_pct": 28.4322095327073
+      },
+      "critical_path": {
+        "max": 10.0,
+        "mean": 7.19,
+        "min": 4.0
+      },
+      "critical_path_room_types_per_floor": {
+        "BOSS": 1.0,
+        "NORMAL": 5.19,
+        "START": 1.0
+      },
+      "enemies": {
+        "max": 42.0,
+        "mean": 24.06,
+        "min": 12.0
+      },
+      "enemies_by_id_per_floor": {
+        "bat": 5.62,
+        "boss_basement": 1.0,
+        "brute": 5.16,
+        "charger": 3.73,
+        "crawler": 4.49,
+        "spitter": 4.06
+      },
+      "enemy_kinds_per_floor": {
+        "boss": 1.0,
+        "elite": 5.16,
+        "fast": 9.35,
+        "normal": 8.55
+      },
+      "failures": 0,
+      "fallbacks": 0,
+      "floor_index": 2,
+      "items": {
+        "max": 5.0,
+        "mean": 4.08,
+        "min": 1.0
+      },
+      "items_by_id_per_floor": {
+        "rare_item": 1.0,
+        "shop_goods": 2.31,
+        "shop_key": 0.77
+      },
+      "keys": {
+        "max": 0.0,
+        "mean": 0.0,
+        "min": 0.0
+      },
+      "locks": {
+        "max": 1.0,
+        "mean": 0.58,
+        "min": 0.0
+      },
+      "npcs": {
+        "max": 23.0,
+        "mean": 11.91,
+        "min": 3.0
+      },
+      "retried": 0,
+      "room_types_per_floor": {
+        "BOSS": 1.0,
+        "NORMAL": 9.69,
+        "SHOP": 0.77,
+        "START": 1.0,
+        "TREASURE": 1.0
+      },
+      "rooms": {
+        "max": 17.0,
+        "mean": 13.46,
+        "min": 11.0
+      },
+      "seeds": 100,
+      "traps": {
+        "max": 9.0,
+        "mean": 1.86,
+        "min": 0.0
+      },
+      "traps_by_id_per_floor": {
+        "poison_vent": 0.54,
+        "pressure_plate_arrow": 0.6,
+        "spikes_small": 0.72
+      },
+      "unexpected_room_types": 0
+    },
+    {
+      "budget": {
+        "mean_per_room": 52.3028350515464,
+        "spent_per_room": 15.2757731958763,
+        "utilization_pct": 29.206396136694
+      },
+      "critical_path": {
+        "max": 13.0,
+        "mean": 9.27,
+        "min": 5.0
+      },
+      "critical_path_room_types_per_floor": {
+        "BOSS": 1.0,
+        "NORMAL": 7.27,
+        "START": 1.0
+      },
+      "enemies": {
+        "max": 43.0,
+        "mean": 26.13,
+        "min": 14.0
+      },
+      "enemies_by_id_per_floor": {
+        "boss_basement": 1.0,
+        "brute": 4.44,
+        "charger": 5.37,
+        "crawler": 6.11,
+        "sentinel": 3.77,
+        "spitter": 5.44
+      },
+      "enemy_kinds_per_floor": {
+        "boss": 1.0,
+        "elite": 8.21,
+        "fast": 5.37,
+        "normal": 11.55
+      },
+      "failures": 0,
+      "fallbacks": 0,
+      "floor_index": 3,
+      "items": {
+        "max": 5.0,
+        "mean": 3.52,
+        "min": 1.0
+      },
+      "items_by_id_per_floor": {
+        "rare_item": 1.0,
+        "shop_goods": 1.89,
+        "shop_key": 0.63
+      },
+      "keys": {
+        "max": 0.0,
+        "mean": 0.0,
+        "min": 0.0
+      },
+      "locks": {
+        "max": 1.0,
+        "mean": 0.49,
+        "min": 0.0
+      },
+      "npcs": {
+        "max": 33.0,
+        "mean": 16.88,
+        "min": 7.0
+      },
+      "retried": 0,
+      "room_types_per_floor": {
+        "BOSS": 1.0,
+        "NORMAL": 11.89,
+        "SHOP": 0.63,
+        "START": 1.0,
+        "TREASURE": 1.0
+      },
+      "rooms": {
+        "max": 20.0,
+        "mean": 15.52,
+        "min": 14.0
+      },
+      "seeds": 100,
+      "traps": {
+        "max": 13.0,
+        "mean": 2.28,
+        "min": 0.0
+      },
+      "traps_by_id_per_floor": {
+        "flame_jet": 0.46,
+        "poison_vent": 0.56,
+        "pressure_plate_arrow": 0.59,
+        "spikes_small": 0.67
+      },
+      "unexpected_room_types": 0
+    }
+  ],
+  "item_catalog": [
+    {
+      "id": "common_item",
+      "kind": "item",
+      "min_floor": 1.0,
+      "name": "Common Relic",
+      "rarity": "common",
+      "spawn_weight": 1.0,
+      "tags": [
+        "loot",
+        "reward"
+      ],
+      "value": 5.0
+    },
+    {
+      "id": "uncommon_item",
+      "kind": "item",
+      "min_floor": 2.0,
+      "name": "Uncommon Relic",
+      "rarity": "uncommon",
+      "spawn_weight": 0.8,
+      "tags": [
+        "loot",
+        "reward"
+      ],
+      "value": 12.0
+    },
+    {
+      "id": "rare_item",
+      "kind": "item",
+      "min_floor": 2.0,
+      "name": "Rare Relic",
+      "rarity": "rare",
+      "spawn_weight": 0.5,
+      "tags": [
+        "loot",
+        "reward"
+      ],
+      "value": 25.0
+    },
+    {
+      "id": "small_key",
+      "kind": "key",
+      "min_floor": 1.0,
+      "name": "Small Key",
+      "rarity": "common",
+      "spawn_weight": 1.0,
+      "tags": [
+        "key"
+      ],
+      "value": 8.0
+    },
+    {
+      "id": "boss_reward",
+      "kind": "reward",
+      "min_floor": 1.0,
+      "name": "Boss Trophy",
+      "rarity": "rare",
+      "spawn_weight": 1.0,
+      "tags": [
+        "loot",
+        "boss"
+      ],
+      "value": 40.0
+    },
+    {
+      "id": "challenge_reward",
+      "kind": "reward",
+      "min_floor": 1.0,
+      "name": "Challenge Cache",
+      "rarity": "uncommon",
+      "spawn_weight": 1.0,
+      "tags": [
+        "loot",
+        "challenge"
+      ],
+      "value": 30.0
+    },
+    {
+      "id": "shop_goods",
+      "kind": "shop_good",
+      "min_floor": 1.0,
+      "name": "Shop Goods",
+      "rarity": "common",
+      "spawn_weight": 1.0,
+      "tags": [
+        "shop"
+      ],
+      "value": 10.0
+    }
+  ],
+  "seeds": 100,
+  "trap_catalog": [
+    {
+      "hazard_cost": 2.0,
+      "id": "spikes_small",
+      "min_floor": 1.0,
+      "name": "Small Spikes",
+      "spawn_weight": 1.0,
+      "tags": [
+        "trap",
+        "ground"
+      ]
+    },
+    {
+      "hazard_cost": 3.0,
+      "id": "poison_vent",
+      "min_floor": 1.0,
+      "name": "Poison Vent",
+      "spawn_weight": 0.8,
+      "tags": [
+        "trap",
+        "area"
+      ]
+    },
+    {
+      "hazard_cost": 4.0,
+      "id": "pressure_plate_arrow",
+      "min_floor": 2.0,
+      "name": "Arrow Plate",
+      "spawn_weight": 0.8,
+      "tags": [
+        "trap",
+        "ranged"
+      ]
+    },
+    {
+      "hazard_cost": 5.0,
+      "id": "flame_jet",
+      "min_floor": 3.0,
+      "name": "Flame Jet",
+      "spawn_weight": 0.6,
+      "tags": [
+        "trap",
+        "fire"
+      ]
+    }
+  ],
+  "unexpected_room_types": 0
+}

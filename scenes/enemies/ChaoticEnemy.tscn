@@ -1,0 +1,74 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/chaotic_enemy.gd" id="1_chaos"]
+[ext_resource type="Texture2D" path="res://sprites/chaotic_enemy.png" id="2_tex"]
+[ext_resource type="Script" path="res://scripts/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/hurtbox_component.gd" id="4_hurtbox"]
+[ext_resource type="Script" path="res://scripts/hitbox_component.gd" id="5_hitbox"]
+[ext_resource type="Script" path="res://scripts/health_bar_component.gd" id="6_bar"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(58, 57)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_contact"]
+size = Vector2(58, 57)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 15.0
+
+[node name="ChaoticEnemy" type="CharacterBody2D"]
+visibility_layer = 3
+collision_layer = 8
+collision_mask = 0
+z_index = 5
+script = ExtResource("1_chaos")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+scale = Vector2(0.115, 0.115)
+texture = ExtResource("2_tex")
+
+[node name="HealthComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_health")
+max_health = 50
+invincibility_duration = 0.0
+
+[node name="HurtboxComponent" type="Area2D" parent="." node_paths=PackedStringArray("health_component")]
+unique_name_in_owner = true
+collision_layer = 2
+script = ExtResource("4_hurtbox")
+health_component = NodePath("../HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="ContactHitbox" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_mask = 2
+script = ExtResource("5_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox"]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_contact")
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("CircleShape2D_body")
+
+[node name="HealthBar" type="Node2D" parent="." node_paths=PackedStringArray("health_component")]
+unique_name_in_owner = true
+script = ExtResource("6_bar")
+health_component = NodePath("../HealthComponent")
+
+[node name="Background" type="ColorRect" parent="HealthBar"]
+offset_left = -21.0
+offset_top = -40.0
+offset_right = 19.0
+offset_bottom = -32.0
+
+[node name="Fill" type="ColorRect" parent="HealthBar"]
+offset_left = -21.0
+offset_top = -40.0
+offset_right = 19.0
+offset_bottom = -32.0

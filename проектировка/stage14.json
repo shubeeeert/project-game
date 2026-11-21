@@ -1,0 +1,50 @@
+{
+  "stage": 14,
+  "title": "Удаление эффекта рассекания воздуха и обход препятствий врагами",
+  "status": "завершено",
+  "summary": "Удалён визуальный след рассекания воздуха при атаке мечом (скрипт slash_effect.gd, узел SwordTrail и вызов spawn удалены); урон и хитбокс атаки не изменены. Враги получили детерминированный A*-навигатор по сетке комнаты 13x9: твёрдые камни являются непроходимыми, шипы и ямы обходятся при наличии альтернативы, при свободной прямой видимости враг идёт напрямую. Маршрут пересчитывается каждые 0.35 с и при смене клетки цели.",
+  "changes": {
+    "removed": [
+      "scripts/slash_effect.gd",
+      "узел SwordTrail в scenes/player.tscn",
+      "_spawn_slash_effect() и связанные константы в scripts/player.gd"
+    ],
+    "added": [
+      "scripts/enemy_navigation.gd — A* по сетке комнаты, кэш навигатора по instance_id, проверка прямой видимости",
+      "tests/cases/test_enemy_navigation.gd — 56 проверок, включая интеграцию с настоящим Enemy.tscn"
+    ],
+    "modified": [
+      "scripts/enemy.gd — преследование через _chase_velocity() вместо прямого вектора к игроку",
+      "scripts/generation/ai/ai_cell_picker.gd — предвычисление признаков комнаты и переиспользование буфера признаков (ускорение генерации)",
+      "scripts/generation/interior/interior_generator.gd — режим defer_connectivity, чтобы AI-интерьер не делал BFS дважды",
+      "scripts/generation/ai/ai_interior_generator.gd — использует defer_connectivity"
+    ]
+  },
+  "tests": {
+    "result": {
+      "status": "PASS",
+      "executed": 11,
+      "failed": 0,
+      "checks_total": 34227,
+      "parse_files": 73,
+      "parse_errors": 0,
+      "game_smoke": {
+        "checks": 35,
+        "errors": 0
+      },
+      "benchmark": {
+        "floor_1": {
+          "p95_ms": 29.04
+        },
+        "floor_2": {
+          "p95_ms": 38.49
+        },
+        "floor_3": {
+          "p95_ms": 42.79
+        },
+        "failures": 0,
+        "fallbacks": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+﻿[gd_scene format=3 uid="uid://dgt8g1fru2ggn"]
+
+[ext_resource type="Script" uid="uid://de2xqw7klyr1l" path="res://scripts/enemy.gd" id="1_4ra3w"]
+[ext_resource type="Texture2D" uid="uid://clvycbcik3xjd" path="res://sprites/igorik.png" id="2_5uy6h"]
+[ext_resource type="Script" uid="uid://ddjw7nvxtwnlj" path="res://scripts/health_component.gd" id="3_c4w8v"]
+[ext_resource type="Script" uid="uid://c7hm4pvppxsbc" path="res://scripts/hurtbox_component.gd" id="4_c4w8v"]
+[ext_resource type="Script" uid="uid://3u7fi4sjs8no" path="res://scripts/hitbox_component.gd" id="5_xwavj"]
+[ext_resource type="Script" uid="uid://dyepgpufkexs2" path="res://scripts/health_bar_component.gd" id="6_xwavj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jq8tk"]
+size = Vector2(622, 577)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6fhyq"]
+size = Vector2(58, 57)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 15.0
+
+[node name="Enemy" type="CharacterBody2D" unique_id=281546417]
+visibility_layer = 3
+collision_layer = 8
+collision_mask = 0
+z_index = 5
+script = ExtResource("1_4ra3w")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1432652577]
+unique_name_in_owner = true
+position = Vector2(-1.9073486e-06, -0.4999981)
+scale = Vector2(0.093247585, 0.09878683)
+texture = ExtResource("2_5uy6h")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=181773940]
+unique_name_in_owner = true
+script = ExtResource("3_c4w8v")
+max_health = 50
+invincibility_duration = 0.0
+metadata/_custom_type_script = "uid://ddjw7nvxtwnlj"
+
+[node name="HurtboxComponent" type="Area2D" parent="." unique_id=1520665586 node_paths=PackedStringArray("health_component")]
+unique_name_in_owner = true
+position = Vector2(-1.9073486e-06, -0.4999981)
+scale = Vector2(0.093247585, 0.09878683)
+collision_layer = 2
+script = ExtResource("4_c4w8v")
+health_component = NodePath("../HealthComponent")
+metadata/_custom_type_script = "uid://c7hm4pvppxsbc"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=2103866150]
+position = Vector2(1.1505752e-05, -2.1457672e-05)
+shape = SubResource("RectangleShape2D_jq8tk")
+
+[node name="ContactHitbox" type="Area2D" parent="." unique_id=1045898112]
+unique_name_in_owner = true
+collision_mask = 2
+script = ExtResource("5_xwavj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox" unique_id=145263040]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_6fhyq")
+
+[node name="BodyShape" type="CollisionShape2D" parent="." unique_id=1306294463]
+unique_name_in_owner = true
+shape = SubResource("CircleShape2D_body")
+
+[node name="HealthBar" type="Node2D" parent="." unique_id=137157315 node_paths=PackedStringArray("health_component")]
+unique_name_in_owner = true
+script = ExtResource("6_xwavj")
+health_component = NodePath("../HealthComponent")
+
+[node name="Background" type="ColorRect" parent="HealthBar" unique_id=2118193038]
+offset_left = -21.0
+offset_top = -40.0
+offset_right = 19.0
+offset_bottom = -32.0
+metadata/_edit_use_anchors_ = true
+
+[node name="Fill" type="ColorRect" parent="HealthBar" unique_id=612681379]
+offset_left = -21.0
+offset_top = -40.0
+offset_right = 19.0
+offset_bottom = -32.0
+metadata/_edit_use_anchors_ = true

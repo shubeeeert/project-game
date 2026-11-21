@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://bq5wkh0mancge"]
+
+[ext_resource type="Script" uid="uid://dgsyp4qpt4mfm" path="res://scripts/room.gd" id="1_qxqvb"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/Enemy.tscn" id="2_6q3pt"]
+
+[node name="RoomBoss" type="Node2D" unique_id=1086717442]
+script = ExtResource("1_qxqvb")
+show_grid_debug = false
+enemy_scene = ExtResource("2_6q3pt")
+
+[node name="Floor" type="ColorRect" parent="." unique_id=255673067]
+z_index = -20
+offset_left = -107.0
+offset_top = -87.0
+offset_right = 107.0
+offset_bottom = 73.0
+
+[node name="EnemySpawnPoints" type="Node2D" parent="." unique_id=1161985850]
+
+[node name="Marker2D" type="Marker2D" parent="EnemySpawnPoints" unique_id=8172446]
+position = Vector2(22, 53)
+
+[node name="Marker2D2" type="Marker2D" parent="EnemySpawnPoints" unique_id=191502084]
+position = Vector2(-45, 57)
+
+[node name="ObstacleContainer" type="Node2D" parent="." unique_id=1041317015]

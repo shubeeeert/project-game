@@ -1,0 +1,264 @@
+{
+  "stage": 8,
+  "title": "Код по модулям",
+  "runtime": "Godot 4.x, GDScript, только RefCounted/Resource в домене",
+  "principles": [
+    "Доменная логика не зависит от Node, SceneTree, FileAccess и глобального randi()/randf().",
+    "Каждый модуль детерминирован при переданном RNG; случайность приходит только через DeterministicRng.",
+    "Сменные алгоритмы подключаются через GeneratorFactory и контракт IGenerationAlgorithm.",
+    "Этаж сериализуется в JSON без потери структуры; служебные кэши остаются внутри модулей.",
+    "Валидация и автопочинка не отключаются: при провале выполняются повторные попытки, затем fallback."
+  ],
+  "entry_points": [
+    {
+      "file": "res://scripts/generation/floor_generator.gd",
+      "role": "Оркестратор одного этажа: макрогенератор -> роли -> двери -> замки -> интерьеры -> сущности -> валидация -> ремонт -> retry/fallback.",
+      "public_api": [
+        "generate(request: Dictionary) -> Dictionary"
+      ]
+    },
+    {
+      "file": "res://scripts/generation/run_generator.gd",
+      "role": "Генерация забега из нескольких этажей и сериализация результата.",
+      "public_api": [
+        "generate_run(request: Dictionary) -> Dictionary",
+        "generate_floor(request: Dictionary) -> Dictionary",
+        "to_json(run: Dictionary, pretty: bool) -> String",
+        "floor_to_json(floor_data: Dictionary, pretty: bool) -> String"
+      ]
+    },
+    {
+      "file": "res://scripts/map_generator.gd",
+      "role": "Совместимый фасад для RoomManager/Minimap: rooms, starting_room, current_room_pos, map_size, get_room_data(), get_adjacent_room(), mark_room_*().",
+      "public_api": [
+        "generate_map() -> void",
+        "get_room_data(pos: Vector2i) -> Dictionary",
+        "get_adjacent_room(current_pos: Vector2i, direction: String) -> Vector2i",
+        "mark_room_discovered(pos: Vector2i) -> void",
+        "is_room_discovered(pos: Vector2i) -> bool",
+        "mark_room_cleared(pos: Vector2i) -> void",
+        "is_room_cleared(pos: Vector2i) -> bool",
+        "get_floor_plan() -> Dictionary",
+        "get_generation_summary() -> Dictionary",
+        "generate_room_content(pos: Vector2i) -> Dictionary"
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "Базовые типы",
+      "file_path": "res://scripts/generation/core/generation_types.gd",
+      "responsibility": "Комната 13x7 (32 px), тайлы, стороны, дверные клетки, форматы клеток, конструкторы floor/room/door/entity.",
+      "notes": "Внутренние множества клеток переводятся в индексы y*WIDTH+x; публично остаются словари {\"x\",\"y\"} и строковые ключи \"x:y\"."
+    },
+    {
+      "name": "Детерминированный RNG",
+      "file_path": "res://scripts/generation/core/deterministic_rng.gd",
+      "responsibility": "xorshift64* с 63-битной маской, named streams, fork(), next_int/next_float/chance/shuffle/weighted_choice, get_state/set_state.",
+      "notes": "Одинаковый seed + имя потока дают одинаковую последовательность; вложенные подсистемы не влияют друг на друга."
+    },
+    {
+      "name": "Конфигурация",
+      "file_path": "res://scripts/generation/core/generation_config.gd",
+      "responsibility": "defaults(), from_dict(), validate(), get_floor_tuning(); проверка min/max комнат, бюджета, этажей и лимитов спецкомнат.",
+      "notes": "JSON-конфиг объединяется с дефолтами; ошибки возвращаются списком, а не приводят к падению."
+    },
+    {
+      "name": "Стабильные id",
+      "file_path": "res://scripts/generation/core/stable_ids.gd",
+      "responsibility": "Детерминированные id комнат, дверей, сущностей, ключей и замков.",
+      "notes": "Одинаковый seed и структура дают одинаковые id в пределах одного этажа."
+    },
+    {
+      "name": "Макрогенератор spine_branch",
+      "file_path": "res://scripts/generation/floor/spine_branch_generator.gd",
+      "responsibility": "Создание сетки комнат: позвоночник, ветки, листья, циклы; соблюдение target/min/max комнат и глубины босса.",
+      "notes": "Реализует IGenerationAlgorithm; заменяется через GeneratorFactory.create_macro()."
+    },
+    {
+      "name": "Роли комнат",
+      "file_path": "res://scripts/generation/floor/room_role_assigner.gd",
+      "responsibility": "Назначение START, BOSS, SPECIAL и NORMAL по весам, глубине и лимитам; BOSS — самый глубокий лист.",
+      "notes": "SHOP/TREASURE/BOSS не соединяются друг с другом; спецкомнаты ставятся на листья."
+    },
+    {
+      "name": "Метрики графа",
+      "file_path": "res://scripts/generation/floor/graph_metrics.gd",
+      "responsibility": "BFS-глубины, критический путь, проверка связности и изоляции веток."
+    },
+    {
+      "name": "Двери",
+      "file_path": "res://scripts/generation/floor/door_builder.gd",
+      "responsibility": "Построение парных дверей из рёбер и проверка симметрии.",
+      "notes": "Каждое ребро создаёт две согласованные двери на противоположных сторонах."
+    },
+    {
+      "name": "Замки и ключи",
+      "file_path": "res://scripts/generation/floor/lock_key_planner.gd",
+      "responsibility": "Замки только на необязательных ветках; ключ всегда достижим от START без прохождения замков; защита ключей ранее поставленных замков.",
+      "notes": "Замок не должен отрезать BOSS, критический путь или уже размещённый ключ."
+    },
+    {
+      "name": "Шаблоны интерьеров",
+      "file_path": "res://scripts/generation/interior/template_repository.gd",
+      "responsibility": "Встроенные шаблоны комнат и опциональная загрузка JSON-шаблонов; fallback по типу комнаты."
+    },
+    {
+      "name": "Выбор шаблона",
+      "file_path": "res://scripts/generation/interior/template_selector.gd",
+      "responsibility": "Выбор шаблона по типу комнаты и целевой сложности с учётом тегов."
+    },
+    {
+      "name": "Генератор интерьера",
+      "file_path": "res://scripts/generation/interior/interior_generator.gd",
+      "responsibility": "Сетка 7x13, двери и проёмы, арена босса, товары магазина, пьедестал сокровища, зоны и spawn_points за один проход.",
+      "notes": "Активные двери всегда проходимы; минимум 2 тайла вглубь; недостижимые награды соединяются проходами."
+    },
+    {
+      "name": "Решатель проходимости",
+      "file_path": "res://scripts/generation/interior/walkability_solver.gd",
+      "responsibility": "Flood fill, reachable_mask, расстояния, компоненты и clearance на целочисленных индексах.",
+      "notes": "Оптимизирован: inline-проверка соседей, PackedByteArray/PackedInt32Array."
+    },
+    {
+      "name": "Бюджет сложности",
+      "file_path": "res://scripts/generation/entities/entity_budget.gd",
+      "responsibility": "Расчёт бюджета комнаты по базе, глубине, типу и профилю сложности; жёсткий лимит и доли врагов/ловушек/наград."
+    },
+    {
+      "name": "Пулы контента",
+      "file_path": "res://scripts/generation/entities/entity_pools.gd",
+      "responsibility": "Фильтрация врагов, ловушек и предметов по этажу и весам; выбор через weighted_choice."
+    },
+    {
+      "name": "Безопасная зона",
+      "file_path": "res://scripts/generation/entities/safe_zone_builder.gd",
+      "responsibility": "Клетки вокруг входов, награды, двери и точки npc/item/boss, куда нельзя ставить врагов; кэш окрестностей."
+    },
+    {
+      "name": "Выбор клеток",
+      "file_path": "res://scripts/generation/entities/cell_picker.gd",
+      "responsibility": "Один shuffle свободных клеток комнаты на размещение; занятые и слишком близкие клетки удаляются навсегда.",
+      "notes": "Снижает число полных сканирований сетки на каждого врага и каждую ловушку."
+    },
+    {
+      "name": "Размещение сущностей",
+      "file_path": "res://scripts/generation/entities/entity_placer.gd",
+      "responsibility": "Порядок: специальный контент -> враги -> ловушки; соблюдение бюджета, безопасной зоны и проходимости."
+    },
+    {
+      "name": "Спецкомнаты",
+      "file_path": "res://scripts/generation/entities/special_room_placer.gd"
+    },
+    {
+      "name": "Валидаторы",
+      "file_path": "res://scripts/generation/validation/",
+      "responsibility": "FloorGraphValidator, InteriorValidator, EntityValidator, LockKeyValidator, PerformanceValidator; единый ValidationReport.",
+      "notes": "Валидаторы не ремонтируют данные: только фиксируют issues с severity."
+    },
+    {
+      "name": "Автопочинка",
+      "file_path": "res://scripts/generation/validation/floor_repairer.gd",
+      "responsibility": "Восстановление дверей, ключей, проходов, границ, достижимости наград и удаление висячих сущностей.",
+      "notes": "Все ремонты детерминированы и записываются в metadata.repairs."
+    },
+    {
+      "name": "Политика повторов",
+      "file_path": "res://scripts/generation/validation/retry_policy.gd",
+      "responsibility": "Решение о повторе с производным seed, ограничение попыток и выбор fallback-этажа."
+    },
+    {
+      "name": "Сериализация",
+      "file_path": "res://scripts/generation/serialization/floor_serializer.gd",
+      "responsibility": "to_json/from_json, нормализация чисел и структуры, validate_minimal, roundtrip."
+    },
+    {
+      "name": "Структурный хеш",
+      "file_path": "res://scripts/generation/serialization/graph_hasher.gd",
+      "responsibility": "FNV-1a хеш структуры без изменчивых полей (время, статусы, отчёты, fallback)."
+    },
+    {
+      "name": "Адаптер движка",
+      "file_path": "res://scripts/generation/engine/room_payload_adapter.gd",
+      "responsibility": "Домен 13x7 -> игровая сетка 13x9: сдвиг y+1, неотрицательные координаты, map_size, starting_room, up/down/left/right, locked_doors, enemies/obstacles.",
+      "notes": "Домен не мутируется; заблокированные двери отдаются отдельным словарём, чтобы существующая игра не ломалась."
+    },
+    {
+      "name": "Мост сцен",
+      "file_path": "res://scripts/generation/engine/room_scene_bridge.gd",
+      "responsibility": "START -> start, BOSS -> boss, остальные доменные типы -> normal."
+    },
+    {
+      "name": "Загрузчик данных",
+      "file_path": "res://scripts/generation/engine/generation_data_loader.gd",
+      "responsibility": "Чтение generation_config.json, balance_tables.json и room_templates.json с безопасным fallback на встроенные значения."
+    },
+    {
+      "name": "Профайлер",
+      "file_path": "res://scripts/generation/engine/generation_profiler.gd",
+      "responsibility": "Замер фаз генерации для отладки и PerformanceValidator."
+    },
+    {
+      "name": "Фабрика алгоритмов",
+      "file_path": "res://scripts/generation/generator_factory.gd",
+      "responsibility": "create_macro/create_interior/create_entities/create_floor_generator/create_validator_registry."
+    }
+  ],
+  "data_contract": {
+    "floor": [
+      "schema_version",
+      "seed",
+      "floor_index",
+      "biome_id",
+      "rooms",
+      "edges",
+      "room_order",
+      "start_room_id",
+      "boss_room_id",
+      "critical_path",
+      "locks",
+      "keys",
+      "metadata"
+    ],
+    "room": [
+      "id",
+      "type",
+      "grid_position",
+      "doors",
+      "tags",
+      "interior",
+      "zones",
+      "spawn_points",
+      "entities",
+      "items",
+      "traps",
+      "difficulty_budget",
+      "difficulty_spent",
+      "template_id"
+    ],
+    "metadata": [
+      "validator_status",
+      "generation_time_ms",
+      "attempt",
+      "fallback",
+      "warnings",
+      "repairs",
+      "needs_regeneration",
+      "depth",
+      "room_count",
+      "algorithm"
+    ],
+    "json_rules": [
+      "Числа после from_json нормализуются до int там, где схема требует int.",
+      "Служебные кэши (например, CellPicker и neighborhood_cache) не попадают в floor_data.",
+      "Структурный хеш игнорирует изменчивые поля metadata."
+    ]
+  },
+  "extension_points": [
+    "Новый макрогенератор: реализовать IGenerationAlgorithm и добавить ветку в GeneratorFactory.create_macro().",
+    "Новый интерьер: реализовать IGenerationAlgorithm, вернуть interior.tiles/zones/spawn_points и зарегистрировать в GeneratorFactory.create_interior().",
+    "Новый размещатель сущностей: зарегистрировать в GeneratorFactory.create_entities(); оркестратор не меняется.",
+    "Новый валидатор: унаследовать i_validator.gd и добавить в ValidatorRegistry.default_validators().",
+    "Новые данные: дополнить generation_config.json / balance_tables.json / room_templates.json без правки кода."
+  ]
+}

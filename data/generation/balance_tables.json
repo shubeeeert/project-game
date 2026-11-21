@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "enemies": [
+    {"id": "crawler", "name": "Crawler", "threat_cost": 3, "min_floor": 1, "max_floor": 3, "tags": ["melee"], "spawn_weight": 1.0, "kind": "normal"},
+    {"id": "bat", "name": "Bat", "threat_cost": 2, "min_floor": 1, "max_floor": 2, "tags": ["fast", "flyer"], "spawn_weight": 1.2, "kind": "fast"},
+    {"id": "spitter", "name": "Spitter", "threat_cost": 4, "min_floor": 1, "max_floor": 3, "tags": ["ranged"], "spawn_weight": 0.9, "kind": "normal"},
+    {"id": "charger", "name": "Charger", "threat_cost": 5, "min_floor": 2, "max_floor": 3, "tags": ["fast", "melee"], "spawn_weight": 0.8, "kind": "fast"},
+    {"id": "brute", "name": "Brute", "threat_cost": 8, "min_floor": 2, "max_floor": 3, "tags": ["elite", "melee"], "spawn_weight": 0.5, "kind": "elite"},
+    {"id": "sentinel", "name": "Sentinel", "threat_cost": 10, "min_floor": 3, "max_floor": 3, "tags": ["elite", "ranged"], "spawn_weight": 0.4, "kind": "elite"},
+    {"id": "shooting_enemy", "name": "Shooting Slime", "threat_cost": 4, "min_floor": 1, "max_floor": 3, "tags": ["ranged"], "spawn_weight": 0.8, "kind": "shooting"},
+    {"id": "jumping_enemy", "name": "Jumping Slime", "threat_cost": 4, "min_floor": 1, "max_floor": 3, "tags": ["melee"], "spawn_weight": 0.8, "kind": "jumping"},
+    {"id": "chaotic_enemy", "name": "Chaotic Slime", "threat_cost": 3, "min_floor": 1, "max_floor": 3, "tags": ["melee"], "spawn_weight": 0.9, "kind": "chaotic"},
+    {"id": "miniboss_warden", "name": "Warden", "threat_cost": 16, "min_floor": 2, "max_floor": 3, "tags": ["miniboss", "elite"], "spawn_weight": 1.0, "kind": "miniboss"},
+    {"id": "boss_basement", "name": "Basement Lord", "threat_cost": 30, "min_floor": 1, "max_floor": 3, "tags": ["boss"], "spawn_weight": 1.0, "kind": "boss"}
+  ],
+  "traps": [
+    {"id": "spikes_small", "name": "Small Spikes", "hazard_cost": 2, "min_floor": 1, "tags": ["trap", "ground"], "spawn_weight": 1.0},
+    {"id": "poison_vent", "name": "Poison Vent", "hazard_cost": 3, "min_floor": 1, "tags": ["trap", "area"], "spawn_weight": 0.8},
+    {"id": "pressure_plate_arrow", "name": "Arrow Plate", "hazard_cost": 4, "min_floor": 2, "tags": ["trap", "ranged"], "spawn_weight": 0.8},
+    {"id": "flame_jet", "name": "Flame Jet", "hazard_cost": 5, "min_floor": 3, "tags": ["trap", "fire"], "spawn_weight": 0.6}
+  ],
+  "items": [
+    {"id": "common_item", "name": "Common Relic", "rarity": "common", "value": 5, "min_floor": 1, "tags": ["loot", "reward"], "kind": "item", "spawn_weight": 1.0},
+    {"id": "uncommon_item", "name": "Uncommon Relic", "rarity": "uncommon", "value": 12, "min_floor": 2, "tags": ["loot", "reward"], "kind": "item", "spawn_weight": 0.8},
+    {"id": "rare_item", "name": "Rare Relic", "rarity": "rare", "value": 25, "min_floor": 2, "tags": ["loot", "reward"], "kind": "item", "spawn_weight": 0.5},
+    {"id": "small_key", "name": "Small Key", "rarity": "common", "value": 8, "min_floor": 1, "tags": ["key"], "kind": "key", "spawn_weight": 1.0},
+    {"id": "boss_reward", "name": "Boss Trophy", "rarity": "rare", "value": 40, "min_floor": 1, "tags": ["loot", "boss"], "kind": "reward", "spawn_weight": 1.0},
+    {"id": "challenge_reward", "name": "Challenge Cache", "rarity": "uncommon", "value": 30, "min_floor": 1, "tags": ["loot", "challenge"], "kind": "reward", "spawn_weight": 1.0},
+    {"id": "shop_goods", "name": "Shop Goods", "rarity": "common", "value": 10, "min_floor": 1, "tags": ["shop"], "kind": "shop_good", "spawn_weight": 1.0}
+  ],
+  "budget_profiles": {
+    "easy": {"base": 24.0, "hard_limit": 45, "depth_growth": 0.04, "hard_mode": false},
+    "normal": {"base": 30.0, "hard_limit": 60, "depth_growth": 0.05, "hard_mode": false},
+    "hard": {"base": 38.0, "hard_limit": 72, "depth_growth": 0.07, "hard_mode": true}
+  }
+}

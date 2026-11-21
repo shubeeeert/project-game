@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://cb07g36w5rh5e" path="res://obstacle.gd" id="1_pit"]
+[ext_resource type="Texture2D" path="res://sprites/pit_cyber.png" id="2_pit"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trigger"]
+size = Vector2(56, 56)
+
+[node name="Pit" type="StaticBody2D"]
+collision_layer = 0
+collision_mask = 0
+z_index = 2
+script = ExtResource("1_pit")
+obstacle_type = "pit"
+health = 0
+solid = false
+damage = 50
+effect = "pit"
+trigger_cooldown = 2.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_pit")
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_trigger")

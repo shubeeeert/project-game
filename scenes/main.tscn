@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://c05tesospg0j1"]
+
+[ext_resource type="Script" uid="uid://dupkutktnfia1" path="res://scripts/main.gd" id="1_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://bfk7sodyaman" path="res://scenes/ui.tscn" id="2_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://baq6w1dfq0hrt" path="res://scenes/player.tscn" id="2_tefeu"]
+[ext_resource type="PackedScene" uid="uid://c1m0gacamera01" path="res://scenes/game_camera.tscn" id="5_cam"]
+
+[node name="Main" type="Node2D" unique_id=1736711897]
+script = ExtResource("1_tbgi4")
+
+[node name="GameCamera" parent="." unique_id=1426019999 instance=ExtResource("5_cam")]
+
+[node name="UI" parent="." unique_id=868192531 instance=ExtResource("2_tbgi4")]
+
+[node name="RoomContainer" type="Node2D" parent="." unique_id=948472682]
+
+[node name="Player" parent="." unique_id=752261722 instance=ExtResource("2_tefeu")]
+unique_name_in_owner = true
+top_level = true

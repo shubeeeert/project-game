@@ -1,0 +1,380 @@
+{
+  "stage": 12,
+  "title": "Финальный отчёт",
+  "status": "готово",
+  "summary": "Генератор этажей и комнат реализован по этапам 8–12: модульный код, детерминированный RNG, валидация с автопочинкой, unit-тесты, бенчмарки, таблицы баланса и полная игровая интеграция (ключи, замки, сундуки, магазины, HUD, золото, переходы между этажами).",
+  "deliverables": {
+    "stages": [
+      "res://проектировка/stage8.json — код по модулям",
+      "res://проектировка/stage9.json — тесты",
+      "res://проектировка/stage10.json — цикл запуска и исправлений",
+      "res://проектировка/stage11.json — таблицы баланса",
+      "res://проектировка/stage12.json — финальный отчёт"
+    ],
+    "code_root": "res://scripts/generation/",
+    "tests_root": "res://tests/",
+    "data_root": "res://data/generation/"
+  },
+  "architecture": {
+    "style": "Слоистая модульная архитектура на RefCounted; домен не зависит от движка.",
+    "layers": [
+      {
+        "layer": "core",
+        "modules": [
+          "generation_types",
+          "deterministic_rng",
+          "generation_config",
+          "stable_ids"
+        ],
+        "role": "Типы, конфигурация, детерминированная случайность и стабильные id."
+      },
+      {
+        "layer": "floor",
+        "modules": [
+          "spine_branch_generator",
+          "room_role_assigner",
+          "graph_metrics",
+          "door_builder",
+          "lock_key_planner"
+        ],
+        "role": "Топология этажа, роли комнат, двери, замки и ключи."
+      },
+      {
+        "layer": "interior",
+        "modules": [
+          "template_repository",
+          "template_selector",
+          "interior_generator",
+          "walkability_solver",
+          "room_template"
+        ],
+        "role": "Сетка комнаты 13x7, проходимость, зоны и точки спавна."
+      },
+      {
+        "layer": "entities",
+        "modules": [
+          "entity_pools",
+          "entity_budget",
+          "safe_zone_builder",
+          "cell_picker",
+          "special_room_placer",
+          "entity_placer",
+          "entity_factory"
+        ],
+        "role": "Бюджет сложности и размещение обязательного контента, врагов, ловушек и наград."
+      },
+      {
+        "layer": "validation",
+        "modules": [
+          "validator_registry",
+          "floor_graph_validator",
+          "interior_validator",
+          "entity_validator",
+          "lock_key_validator",
+          "performance_validator",
+          "floor_repairer",
+          "retry_policy",
+          "validation_report"
+        ],
+        "role": "Проверки, автопочинка, повторные попытки и fallback."
+      },
+      {
+        "layer": "serialization",
+        "modules": [
+          "floor_serializer",
+          "graph_hasher"
+        ],
+        "role": "JSON roundtrip и структурный хеш для детерминизма."
+      },
+      {
+        "layer": "engine",
+        "modules": [
+          "generation_data_loader",
+          "room_payload_adapter",
+          "room_scene_bridge",
+          "generation_profiler"
+        ],
+        "role": "Адаптация домена к существующей игре и загрузка данных."
+      },
+      {
+        "layer": "orchestration",
+        "modules": [
+          "floor_generator",
+          "run_generator",
+          "generator_factory"
+        ],
+        "role": "Оркестрация этажа/забега и подмена алгоритмов."
+      }
+    ],
+    "determinism": "Единственный источник случайности — DeterministicRng (xorshift64*, named streams, fork). Глобальные randi()/randf() не используются.",
+    "data_flow": [
+      "RunGenerator/FloorGenerator получает seed, floor_index, config, balance.",
+      "SpineBranchGenerator строит комнаты и рёбра.",
+      "RoomRoleAssigner назначает START/BOSS/спецкомнаты/NORMAL.",
+      "DoorBuilder создаёт парные двери; LockKeyPlanner добавляет замки на необязательные ветки и достижимые ключи.",
+      "InteriorGenerator строит 7x13, зоны и spawn_points.",
+      "EntityPlacer размещает обязательный контент, врагов и ловушки по бюджету.",
+      "ValidatorRegistry проверяет этаж; FloorRepairer чинит; RetryPolicy повторяет или выбирает fallback.",
+      "FloorSerializer отдаёт JSON; RoomPayloadAdapter строит данные для RoomGrid."
+    ]
+  },
+  "entry_point": {
+    "main": "res://scripts/generation/floor_generator.gd",
+    "method": "generate(request: Dictionary) -> Dictionary",
+    "request_fields": {
+      "seed": "int — единственный источник случайности",
+      "floor_index": "int — 1..3",
+      "biome_id": "String — например \"basement\"",
+      "config": "Dictionary — опционально; иначе дефолты",
+      "balance": "Dictionary — опционально; иначе встроенные таблицы",
+      "min_rooms": "int — опционально",
+      "max_rooms": "int — опционально",
+      "flags": "Dictionary — опционально",
+      "required_special_rooms": "Array — опционально"
+    },
+    "return": "FloorPlan: rooms, edges, room_order, start_room_id, boss_room_id, critical_path, locks, keys, metadata",
+    "facade": "res://scripts/map_generator.gd (autoload/нода) — generate_map(), rooms, starting_room, current_room_pos, map_size",
+    "run_level": "res://scripts/generation/run_generator.gd — generate_run() для нескольких этажей",
+    "game_entry": "res://scripts/main.gd — RoomManager.start_run(seed); seed забега можно задать как --seed=N в аргументах командной строки",
+    "game_api": [
+      "MapGenerator.begin_run(seed)",
+      "MapGenerator.go_to_floor(index)",
+      "MapGenerator.collect_key(key_id, lock_id)",
+      "MapGenerator.unlock_lock(lock_id)",
+      "MapGenerator.mark_item_claimed(item_id)",
+      "RoomManager.start_run(seed)",
+      "RoomManager.advance_floor()"
+    ]
+  },
+  "call_example": {
+    "direct": [
+      "const FloorGenerator = preload(\"res://scripts/generation/floor_generator.gd\")",
+      "const Loader = preload(\"res://scripts/generation/engine/generation_data_loader.gd\")",
+      "var generator = FloorGenerator.new(Loader.load_config(), Loader.load_balance())",
+      "var floor_data: Dictionary = generator.generate({",
+      "    \"seed\": 12345,",
+      "    \"floor_index\": 2,",
+      "    \"biome_id\": \"basement\"",
+      "})",
+      "print(floor_data[\"metadata\"][\"validator_status\"])  # PASS"
+    ],
+    "map_generator": [
+      "var map = MapGenerator  # или get_node(\"/root/MapGenerator\")",
+      "map.generation_seed = 12345",
+      "map.floor_index = 2",
+      "map.use_procedural_generator = true",
+      "map.generate_map()",
+      "var start: Vector2i = map.starting_room",
+      "var room: Dictionary = map.get_room_data(start)"
+    ],
+    "run": [
+      "const RunGenerator = preload(\"res://scripts/generation/run_generator.gd\")",
+      "var run: Dictionary = RunGenerator.generate_run({\"seed\": 12345, \"floor_count\": 3, \"biome_id\": \"basement\"})",
+      "var text: String = RunGenerator.to_json(run, true)"
+    ],
+    "game": [
+      "# Новый забег (seed=0 — взять время; явный seed — воспроизведение):",
+      "RoomManager.start_run(12345)",
+      "# Переход на следующий этаж из портала в комнате босса:",
+      "RoomManager.advance_floor()",
+      "# Состояние текущего этажа:",
+      "var total: int = MapGenerator.get_total_key_count()",
+      "var taken: int = MapGenerator.get_collected_key_count()",
+      "# Запуск с явным seed из консоли:",
+      "# godot --path E:\\ill-try -- --seed=12345"
+    ]
+  },
+  "configuration": {
+    "files": {
+      "res://data/generation/generation_config.json": "Общие лимиты, бюджет, веса ролей, модификаторы типов, special_limits, настройки трёх этажей.",
+      "res://data/generation/balance_tables.json": "Каталоги врагов, ловушек и предметов, профили бюджета easy/normal/hard.",
+      "res://data/generation/room_templates.json": "Опциональные JSON-шаблоны комнат; при отсутствии используются встроенные."
+    },
+    "key_values": {
+      "max_attempts": 3,
+      "max_generation_ms": 50.0,
+      "min_rooms": 9,
+      "max_rooms": 20,
+      "safe_zone_radius": 3,
+      "allow_locked_doors": true,
+      "algorithms": {
+        "macro": "spine_branch",
+        "interior": "template_interior",
+        "entities": "budget_placed"
+      },
+      "budget": {
+        "base": 30.0,
+        "hard_limit": 60,
+        "depth_growth": 0.05,
+        "enemy_share": 0.65,
+        "trap_share": 0.2,
+        "reward_share": 0.15,
+        "hard_mode": false
+      }
+    },
+    "floor_targets": [
+      {
+        "floor_index": 1,
+        "target_rooms": 10,
+        "difficulty": 1.0,
+        "max_locks": 1,
+        "elite_chance": 0.08,
+        "trap_density": 0.1
+      },
+      {
+        "floor_index": 2,
+        "target_rooms": 14,
+        "difficulty": 1.6,
+        "max_locks": 2,
+        "elite_chance": 0.14,
+        "trap_density": 0.16
+      },
+      {
+        "floor_index": 3,
+        "target_rooms": 18,
+        "difficulty": 2.3,
+        "max_locks": 2,
+        "elite_chance": 0.2,
+        "trap_density": 0.22
+      }
+    ],
+    "extension": "Новый этаж добавляется записью в floors; новые враги/ловушки/предметы — записями в balance_tables.json без изменения кода."
+  },
+  "engine_integration": {
+    "adapter": "res://scripts/generation/engine/room_payload_adapter.gd",
+    "scene_bridge": "res://scripts/generation/engine/room_scene_bridge.gd",
+    "grid": "Домен 13x7 (32 px) вписывается в игровую сетку RoomGrid 13x9 (64 px) со сдвигом y + 1.",
+    "coordinates": "Доменная клетка (x, y) -> игровая (x, y + 1); этаж сдвигается в неотрицательные координаты, map_size считается по bounding box.",
+    "doors": "north/south/west/east -> up/down/left/right; locked_doors отдаётся отдельным словарём, door_locks хранит lock_id по направлению.",
+    "scenes": {
+      "START": "start",
+      "BOSS": "boss",
+      "NORMAL": "normal",
+      "TREASURE": "normal",
+      "SHOP": "normal"
+    },
+    "public_map_api": [
+      "rooms",
+      "starting_room",
+      "current_room_pos",
+      "map_size",
+      "get_room_data()",
+      "get_adjacent_room()",
+      "mark_room_discovered()",
+      "is_room_discovered()",
+      "mark_room_cleared()",
+      "is_room_cleared()",
+      "get_floor_plan()",
+      "get_generation_summary()",
+      "generate_room_content()",
+      "begin_run()",
+      "go_to_floor()",
+      "collect_key()",
+      "is_key_collected()",
+      "unlock_lock()",
+      "is_lock_unlocked()",
+      "mark_item_claimed()",
+      "is_item_claimed()",
+      "get_collected_key_count()",
+      "get_total_key_count()"
+    ],
+    "game_loop": {
+      "run_state": "GameManager хранит seed забега, текущий этаж и золото; MapGenerator — ключи, замки и забранные предметы текущего этажа.",
+      "rooms": "RoomManager загружает сцены start/normal/boss, ставит игрока у двери и двигает контейнер комнаты.",
+      "locks": "Запертая дверь остаётся закрытой до зачистки комнаты и до подбора ключа; после зачистки и разблокировки открывается.",
+      "progression": "После зачистки комнаты босса появляется портал stairs; RoomManager.advance_floor() генерирует следующий этаж и очищает состояние ключей/замков/предметов.",
+      "economy": "Золото начисляется только при persistent_death: обычные враги — 3, босс — 60; HUD показывает этаж, золото и ключи.",
+      "hud": "ui.gd выводит этаж/золото/ключи и центральные сообщения на 3 секунды; minimap.gd красит спецкомнаты по domain_type.",
+      "seed": "RoomManager.start_run(0) берёт seed из времени (без глобального randi()); явный seed сохраняет воспроизводимость, --seed=N задаёт его из консоли."
+    },
+    "backward_compatibility": "Процедурный режим включён по умолчанию; legacy-режим (use_procedural_generator=false) сохранён и работает на локальном seeded RNG."
+  },
+  "tests": {
+    "command": "godot --headless --path E:\\ill-try --script res://tests/test_runner.gd",
+    "parse_check": "godot --headless --path E:\\ill-try --script res://tests/tools/parse_check.gd",
+    "benchmark": "godot --headless --path E:\\ill-try --script res://tests/tools/bench_seeds.gd",
+    "balance": "godot --headless --path E:\\ill-try --script res://tests/tools/balance_stats.gd",
+    "game_smoke": "godot --headless --path E:\\ill-try --script res://tests/tools/game_smoke.gd",
+    "result": {
+      "status": "PASS",
+      "executed": 9,
+      "failed": 0,
+      "checks_total": 31765,
+      "duration_ms": 10716.275,
+      "parse_files": 66,
+      "parse_errors": 0,
+      "debug_failures": 0,
+      "game_smoke": {
+        "status": "PASS",
+        "checks": 34,
+        "errors": 0
+      },
+      "benchmark": {
+        "floor_1": {
+          "mean_ms": 12.54,
+          "p95_ms": 14.81,
+          "max_ms": 19.83
+        },
+        "floor_2": {
+          "mean_ms": 18.56,
+          "p95_ms": 21.25,
+          "max_ms": 25.07
+        },
+        "floor_3": {
+          "mean_ms": 23.77,
+          "p95_ms": 28.63,
+          "max_ms": 31.33
+        },
+        "retry": 0,
+        "fallback": 0,
+        "validation_failures": 0
+      }
+    },
+    "coverage": [
+      "RNG и потоки",
+      "конфигурация и JSON-данные",
+      "граф/двери/замки/ключи",
+      "интерьеры и проходимость",
+      "сущности и бюджет",
+      "сериализация и структурный хеш",
+      "детерминизм 100 seed",
+      "производительность p95",
+      "адаптер и режимы MapGenerator",
+      "состояние забега: ключи/замки/предметы",
+      "игровые сцены, RoomFeature, запертые двери и портал босса"
+    ]
+  },
+  "limitations": [
+    "Домен 13x7 не совпадает с игровой сеткой 13x9; адаптер добавляет пустую строку сверху, а не перерисовывает комнаты.",
+    "Взаимодействие с ключами, сундуками, товарами, NPC и порталом происходит по касанию игроком; отдельного инвентаря, диалогов и покупок пока нет — золото только копится в HUD.",
+    "id сущностей стабильны в пределах одного этажа, но могут совпасть у разных seed на одном floor_index; для сохранений нужен составной ключ run+floor+id.",
+    "Производительность зависит от фоновой нагрузки: на загруженной машине без высокого приоритета p95 может превышать 50 мс.",
+    "Встроенные шаблоны комнат ограничены по разнообразию; JSON-шаблоны опциональны и не обязательны для работы.",
+    "Нет миграции сохранений между версиями схемы; schema_version фиксируется в данных.",
+    "Fallback-этаж гарантирует валидность, но может быть проще обычного (меньше комнат и контента).",
+    "Игровая интеграция проверяется headless-смоуком (сцены, фичи, замки, портал); визуальное качество HUD и ощущения от игры требуют ручного запуска."
+  ],
+  "next_steps": [
+    "Добавить инвентарь, покупки у торговца и диалоги NPC поверх существующего золота и RoomFeature.",
+    "Вынести шаблоны комнат в редактируемый JSON и добавить редакторский валидатор шаблонов.",
+    "Кэшировать репозиторий шаблонов и пулы между этажами, чтобы снизить populate-фазу.",
+    "Добавить fuzz-тесты на 1000+ seed и на граничные конфигурации (мало комнат, hard mode, отключённые спецкомнаты).",
+    "Ввести версионирование сохранений и миграции FloorPlan.",
+    "Добавить биомные варианты тайлов и весов контента без изменения оркестратора.",
+    "Собирать телеметрию баланса в редакторе (средние враги/ловушки/бюджет) для быстрой настройки таблиц.",
+    "Реализовать инкрементальную регенерацию отдельной комнаты для отладки.",
+    "Добавить визуальную проверку комнат в редакторе через инструмент предпросмотра."
+  ],
+  "reproduction": {
+    "steps": [
+      "Открыть проект E:\\ill-try в Godot 4.x.",
+      "Проверить синтаксис: godot --headless --path E:\\ill-try --script res://tests/tools/parse_check.gd.",
+      "Запустить тесты: godot --headless --path E:\\ill-try --script res://tests/test_runner.gd.",
+      "Запустить headless-смоук игры: godot --headless --path E:\\ill-try --script res://tests/tools/game_smoke.gd.",
+      "Запустить бенчмарк при высоком приоритете процесса и закрытом редакторе: res://tests/tools/bench_seeds.gd.",
+      "Собрать статистику баланса: res://tests/tools/balance_stats.gd.",
+      "Запустить игру: main.gd вызовет RoomManager.start_run(); для воспроизводимого этажа добавить -- --seed=12345."
+    ],
+    "expected": "parse_check: files=66 errors=0; test_runner: 9/9 PASS, 31765 проверок, 0 провалов; game_smoke: checks=34 errors=0; p95 этажа 3 < 50 мс; retry/fallback=0."
+  }
+}

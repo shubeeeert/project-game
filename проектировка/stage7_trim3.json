@@ -1,0 +1,609 @@
+{
+  "architecture_overview": "Godot 4.x / GDScript. Трёхслойная архитектура: чистый домен, оркестрация и движковые адаптеры. Домен наследует RefCounted/Resource и не использует Node, SceneTree, глобальный randi, FileAccess и сцены. Домен работает с комнатой 13x7 тайлов по 32 px; движковый адаптер переводит координаты в текущую геометрию RoomGrid. DeterministicRng построен на SplitMix64 и именованных потоках seed:floor:<n>:room:<id>:<stage>; повторная генерация с тем же seed и конфигом даёт тот же canonical hash. Любой этап реализует IGenerationAlgorithm и создаётся через GeneratorFactory, поэтому макрогенератор можно заменить, не меняя валидаторы, сериализацию и движковый слой. FloorGenerator собирает этаж, ValidatorRegistry формирует ValidationReport, FloorRepairer и RetryPolicy детерминированно чинят этаж, после трёх попыток используется заранее проверенный fallback. FloorSerializer выдаёт версионированный JSON, GraphHasher считает хэш, performance-тесты проверяют p95 < 50 мс. Все конфиги, пулы, шаблоны и fallback-этажи лежат в res://data/generation.",
+  "modules": [
+    {
+      "name": "Доменные типы",
+      "file_path": "res://scripts/generation/core/generation_types.gd",
+      "responsibility": "Константы 13x7, типы комнат, сущностей и зон, фабрики пустых floor/room/door/entity записей, преобразование сторон и направлений.",
+      "public_functions": [
+        "room_size() -> Vector2i",
+        "make_floor(seed: int, floor_index: int) -> Dictionary",
+        "make_room(id: String, room_type: String, grid_pos: Vector2i) -> Dictionary"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "Детерминированный RNG",
+      "file_path": "res://scripts/generation/core/deterministic_rng.gd",
+      "responsibility": "SplitMix64 без глобального random: seed и имя потока, fork для этапов и комнат, целые и дробные числа, взвешенный выбор, shuffle и сериализация состояния.",
+      "public_functions": [
+        "fork(stream_name: String) -> DeterministicRng",
+        "next_int(min_value: int, max_value: int) -> int",
+        "next_float() -> float"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "Стабильные идентификаторы",
+      "file_path": "res://scripts/generation/core/stable_ids.gd",
+      "responsibility": "Воспроизводимые id комнат, дверей, рёбер, сущностей, ключей и замков из seed, этажа, координат и порядкового номера.",
+      "public_functions": [
+        "room_id(floor_index: int, grid_pos: Vector2i) -> String",
+        "door_id(room_id: String, side: String) -> String",
+        "entity_id(floor_index: int, room_id: String, entity_type: String, ordinal: int) -> String"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "Конфигурация генерации",
+      "file_path": "res://scripts/generation/core/generation_config.gd",
+      "responsibility": "Валидация и нормализация конфига: лимиты комнат, глубины BOSS, бюджеты, лимиты замков, id алгоритмов по stage и пороги производительности.",
+      "public_functions": [
+        "from_dict(data: Dictionary) -> Dictionary",
+        "validate(data: Dictionary) -> Array[String]",
+        "normalize(data: Dictionary) -> Dictionary"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd"
+      ]
+    },
+    {
+      "name": "Контракт сменного алгоритма",
+      "file_path": "res://scripts/generation/contracts/i_generation_algorithm.gd",
+      "responsibility": "Единый интерфейс макрогенератора, интерьерного генератора и разместителя сущностей; позволяет заменить этап через фабрику.",
+      "public_functions": [
+        "algorithm_id() -> String",
+        "supports(config: Dictionary) -> bool",
+        "validate_input(input: Dictionary) -> Array[String]"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "Метрики графа",
+      "file_path": "res://scripts/generation/floor/graph_metrics.gd",
+      "responsibility": "BFS-глубины от START, критический путь, степень и листья комнат, компоненты связности и проверка допустимости петель.",
+      "public_functions": [
+        "bfs_depths(rooms: Dictionary, start_id: String) -> Dictionary",
+        "critical_path(rooms: Dictionary, start_id: String, boss_id: String) -> Array[String]",
+        "room_degree(edges: Array, room_id: String) -> int"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd"
+      ]
+    },
+    {
+      "name": "Генератор позвоночника и веток",
+      "file_path": "res://scripts/generation/floor/spine_branch_generator.gd",
+      "responsibility": "Строит детерминированный позвоночник от START, добавляет ветки, размещает BOSS на максимальной BFS-глубине и замыкает только допустимые петли между NORMAL одинаковой глубины.",
+      "public_functions": [
+        "algorithm_id() -> String",
+        "generate(input: Dictionary) -> Dictionary",
+        "build_spine(config: Dictionary, rng: DeterministicRng) -> Dictionary"
+      ],
+      "dependencies": [
+        "res://scripts/generation/contracts/i_generation_algorithm.gd",
+        "res://scripts/generation/core/generation_types.gd",
+        "res://scripts/generation/core/deterministic_rng.gd",
+        "res://scripts/generation/floor/graph_metrics.gd"
+      ]
+    },
+    {
+      "name": "Назначение ролей комнат",
+      "file_path": "res://scripts/generation/floor/room_role_assigner.gd",
+      "public_functions": [
+        "assign(graph: Dictionary, config: Dictionary, rng: DeterministicRng) -> Dictionary",
+        "select_boss_room(graph: Dictionary, depths: Dictionary, config: Dictionary) -> String",
+        "select_shop_leaf(graph: Dictionary, reserved: Array, rng: DeterministicRng) -> String"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd",
+        "res://scripts/generation/core/deterministic_rng.gd",
+        "res://scripts/generation/core/stable_ids.gd",
+        "res://scripts/generation/floor/graph_metrics.gd"
+      ]
+    },
+    {
+      "name": "Построение дверей",
+      "file_path": "res://scripts/generation/floor/door_builder.gd",
+      "responsibility": "Создаёт и синхронизирует дверные пары, проверяет противоположные стороны, target_room_id, paired_door_id и lock_id, удаляет висячие двери и дубликаты.",
+      "public_functions": [
+        "build(rooms: Dictionary, edges: Array) -> Dictionary",
+        "sync_edge(room_a: Dictionary, room_b: Dictionary, side: String) -> void",
+        "remove_dangling(floor: Dictionary) -> Array[String]"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd",
+        "res://scripts/generation/core/stable_ids.gd"
+      ]
+    },
+    {
+      "name": "Планирование ключей и замков",
+      "file_path": "res://scripts/generation/floor/lock_key_planner.gd",
+      "responsibility": "Ставит замки только на необязательные ветки, размещает ключи на стороне START до замка, поддерживает биекцию и проверяет отсутствие циклов зависимостей.",
+      "public_functions": [
+        "plan(floor: Dictionary, config: Dictionary, rng: DeterministicRng) -> Dictionary",
+        "select_lockable_edges(graph: Dictionary, depths: Dictionary, config: Dictionary) -> Array[String]",
+        "place_keys(floor: Dictionary, locks: Array, rng: DeterministicRng) -> Dictionary"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd",
+        "res://scripts/generation/core/deterministic_rng.gd",
+        "res://scripts/generation/core/stable_ids.gd",
+        "res://scripts/generation/floor/graph_metrics.gd"
+      ]
+    },
+    {
+      "name": "Шаблон комнаты",
+      "file_path": "res://scripts/generation/interior/room_template.gd",
+      "responsibility": "Модель валидированного шаблона 13x7: сетка, door_mask, зоны, препятствия, теги и fallback; разбор и сериализация в Dictionary.",
+      "public_functions": [
+        "from_dict(data: Dictionary) -> RoomTemplate",
+        "to_dict() -> Dictionary",
+        "validate() -> Array[String]"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd"
+      ]
+    },
+    {
+      "name": "Репозиторий шаблонов",
+      "file_path": "res://scripts/generation/interior/template_repository.gd",
+      "responsibility": "Индексирует шаблоны по типу комнаты, маске дверей и этажу, выдаёт кандидатов и гарантированный fallback, проверяет полноту набора.",
+      "public_functions": [
+        "set_templates(templates: Array) -> void",
+        "get_by_type(room_type: String) -> Array",
+        "get_by_door_mask(room_type: String, mask: int) -> Array"
+      ],
+      "dependencies": [
+        "res://scripts/generation/interior/room_template.gd"
+      ]
+    },
+    {
+      "name": "Выбор шаблона",
+      "file_path": "res://scripts/generation/interior/template_selector.gd",
+      "responsibility": "Детерминированно выбирает шаблон по типу, door_mask, этажу, сложности и тегам; считает вес кандидатов и умеет брать fallback.",
+      "public_functions": [
+        "select(repository: TemplateRepository, room: Dictionary, config: Dictionary, rng: DeterministicRng) -> RoomTemplate",
+        "select_fallback(repository: TemplateRepository, room_type: String) -> RoomTemplate",
+        "score(template: RoomTemplate, room: Dictionary, config: Dictionary) -> float"
+      ],
+      "dependencies": [
+        "res://scripts/generation/interior/template_repository.gd",
+        "res://scripts/generation/interior/room_template.gd",
+        "res://scripts/generation/core/deterministic_rng.gd"
+      ]
+    },
+    {
+      "name": "Генератор интерьера",
+      "file_path": "res://scripts/generation/interior/interior_generator.gd",
+      "responsibility": "Выбирает шаблон, применяет детерминированные мутации, разрешает дверные и entry-клетки, формирует зоны и проверяет планировку.",
+      "public_functions": [
+        "algorithm_id() -> String",
+        "generate(input: Dictionary) -> Dictionary",
+        "generate_room(room: Dictionary, template: RoomTemplate, config: Dictionary, rng: DeterministicRng) -> Dictionary"
+      ],
+      "dependencies": [
+        "res://scripts/generation/contracts/i_generation_algorithm.gd",
+        "res://scripts/generation/interior/room_template.gd",
+        "res://scripts/generation/interior/template_selector.gd",
+        "res://scripts/generation/interior/walkability_solver.gd"
+      ]
+    },
+    {
+      "name": "Решатель проходимости",
+      "file_path": "res://scripts/generation/interior/walkability_solver.gd",
+      "responsibility": "Flood fill по четырём направлениям, карта расстояний, компоненты связности, достижимость целей, clearance и проверка пути с заблокированными клетками.",
+      "public_functions": [
+        "flood_fill(grid: Array, start: Vector2i) -> Dictionary",
+        "distance_map(grid: Array, starts: Array) -> Dictionary",
+        "all_reachable(grid: Array, from: Vector2i, targets: Array) -> bool"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd"
+      ]
+    },
+    {
+      "name": "Бюджет сложности",
+      "file_path": "res://scripts/generation/entities/entity_budget.gd",
+      "responsibility": "Считает difficulty_budget и allocations комнаты, резервирует бюджет обязательных сущностей и списывает стоимость с проверкой bucket caps.",
+      "public_functions": [
+        "build_room_budget(room: Dictionary, config: Dictionary) -> Dictionary",
+        "can_afford(state: Dictionary, bucket: String, cost: int) -> bool",
+        "reserve(state: Dictionary, bucket: String, cost: int) -> bool"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd",
+        "res://scripts/generation/core/generation_config.gd"
+      ]
+    },
+    {
+      "name": "Пулы этажей",
+      "file_path": "res://scripts/generation/entities/entity_pools.gd",
+      "responsibility": "Хранит пулы врагов, элит, боссов, ловушек, предметов и специальных объектов по этажам; фильтрует по тегам и запрещает смешивание этажей.",
+      "public_functions": [
+        "set_pools(pools: Dictionary) -> void",
+        "get_enemy_pool(floor_index: int, tags: Array) -> Array",
+        "get_item_pool(floor_index: int, tags: Array) -> Array"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd"
+      ]
+    },
+    {
+      "name": "Безопасные зоны",
+      "file_path": "res://scripts/generation/entities/safe_zone_builder.gd",
+      "responsibility": "Строит safe-зоны вокруг entry-тайлов, считает BFS-дистанцию до дверей, объединяет зоны и проверяет запрет врагов, ловушек и опасных препятствий.",
+      "public_functions": [
+        "build(layout: Dictionary, door_sides: Array, config: Dictionary) -> Dictionary",
+        "is_safe(cell: Vector2i) -> bool",
+        "distance_to_door(cell: Vector2i) -> int"
+      ],
+      "dependencies": [
+        "res://scripts/generation/interior/walkability_solver.gd",
+        "res://scripts/generation/core/generation_types.gd"
+      ]
+    },
+    {
+      "name": "Разместитель сущностей",
+      "file_path": "res://scripts/generation/entities/entity_placer.gd",
+      "responsibility": "Размещает врагов, ловушки, награды, предметы, препятствия и декор по зонам с учётом бюджета, safe-зон, достижимости и запрета блокировать проход.",
+      "public_functions": [
+        "algorithm_id() -> String",
+        "generate(input: Dictionary) -> Dictionary",
+        "place_room(room: Dictionary, layout: Dictionary, budget: Dictionary, pools: EntityPools, safe_zone: Dictionary, config: Dictionary, rng: DeterministicRng) -> Dictionary"
+      ],
+      "dependencies": [
+        "res://scripts/generation/contracts/i_generation_algorithm.gd",
+        "res://scripts/generation/entities/entity_budget.gd",
+        "res://scripts/generation/entities/entity_pools.gd",
+        "res://scripts/generation/entities/safe_zone_builder.gd"
+      ]
+    },
+    {
+      "name": "Специальные комнаты",
+      "file_path": "res://scripts/generation/entities/special_room_placer.gd",
+      "public_functions": [
+        "populate(room: Dictionary, layout: Dictionary, budget: Dictionary, pools: EntityPools, config: Dictionary, rng: DeterministicRng) -> Dictionary",
+        "populate_boss(room: Dictionary, context: Dictionary) -> Dictionary",
+        "populate_treasure(room: Dictionary, context: Dictionary) -> Dictionary"
+      ],
+      "dependencies": [
+        "res://scripts/generation/entities/entity_budget.gd",
+        "res://scripts/generation/entities/entity_pools.gd",
+        "res://scripts/generation/entities/entity_placer.gd",
+        "res://scripts/generation/entities/safe_zone_builder.gd"
+      ]
+    },
+    {
+      "name": "Отчёт валидации",
+      "file_path": "res://scripts/generation/validation/validation_report.gd",
+      "responsibility": "Хранит INFO/WARNING/ERROR/CRITICAL с кодом и контекстом, объединяет отчёты, считает предупреждения и отдаёт стабильно отсортированный словарь.",
+      "public_functions": [
+        "add(severity: String, code: String, message: String, context: Dictionary = {}) -> void",
+        "merge(other: ValidationReport) -> void",
+        "has_critical() -> bool"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd"
+      ]
+    },
+    {
+      "name": "Реестр валидаторов",
+      "file_path": "res://scripts/generation/validation/validator_registry.gd",
+      "responsibility": "Регистрирует валидаторы, запускает их в стабильном порядке, объединяет отчёты и поддерживает выборочный запуск.",
+      "public_functions": [
+        "register(validator: IValidator) -> void",
+        "run_all(floor: Dictionary, context: Dictionary) -> ValidationReport",
+        "run(validator_ids: Array, floor: Dictionary, context: Dictionary) -> ValidationReport"
+      ],
+      "dependencies": [
+        "res://scripts/generation/validation/i_validator.gd",
+        "res://scripts/generation/validation/validation_report.gd"
+      ]
+    },
+    {
+      "name": "Валидатор графа",
+      "file_path": "res://scripts/generation/validation/floor_graph_validator.gd",
+      "responsibility": "Проверяет достижимость обязательных комнат и BOSS, двери, критический путь, специальные комнаты, координаты, дубликаты, степень и петли.",
+      "public_functions": [
+        "validator_id() -> String",
+        "validate(floor: Dictionary, context: Dictionary) -> ValidationReport",
+        "check_reachability(floor: Dictionary, report: ValidationReport) -> void"
+      ],
+      "dependencies": [
+        "res://scripts/generation/validation/validation_report.gd",
+        "res://scripts/generation/floor/graph_metrics.gd"
+      ]
+    },
+    {
+      "name": "Валидатор интерьера",
+      "file_path": "res://scripts/generation/validation/interior_validator.gd",
+      "responsibility": "Проверяет проходимость, достижимость дверей и наград, свободную зону 3x3 у входа, дверные клетки и арену BOSS 7x5.",
+      "public_functions": [
+        "validator_id() -> String",
+        "validate(floor: Dictionary, context: Dictionary) -> ValidationReport",
+        "check_walkability(room: Dictionary, layout: Dictionary, report: ValidationReport) -> void"
+      ],
+      "dependencies": [
+        "res://scripts/generation/validation/validation_report.gd",
+        "res://scripts/generation/interior/walkability_solver.gd"
+      ]
+    },
+    {
+      "name": "Валидатор сущностей",
+      "file_path": "res://scripts/generation/validation/entity_validator.gd",
+      "responsibility": "Проверяет бюджет, bucket caps, пересечения, safe-зону, дистанцию врагов, достижимость предметов, видимость ловушек и контент специальных комнат.",
+      "public_functions": [
+        "validator_id() -> String",
+        "validate(floor: Dictionary, context: Dictionary) -> ValidationReport",
+        "check_budget(room: Dictionary, report: ValidationReport) -> void"
+      ],
+      "dependencies": [
+        "res://scripts/generation/validation/validation_report.gd",
+        "res://scripts/generation/entities/entity_budget.gd",
+        "res://scripts/generation/entities/safe_zone_builder.gd",
+        "res://scripts/generation/interior/walkability_solver.gd"
+      ]
+    },
+    {
+      "name": "Валидатор ключей и замков",
+      "file_path": "res://scripts/generation/validation/lock_key_validator.gd",
+      "responsibility": "Проверяет ключ до замка, биекцию, отсутствие циклов, запрет замков на критическом пути и лимит замков этажа.",
+      "public_functions": [
+        "validator_id() -> String",
+        "validate(floor: Dictionary, context: Dictionary) -> ValidationReport",
+        "check_keys_before_locks(floor: Dictionary, report: ValidationReport) -> void"
+      ],
+      "dependencies": [
+        "res://scripts/generation/validation/validation_report.gd",
+        "res://scripts/generation/floor/graph_metrics.gd"
+      ]
+    },
+    {
+      "name": "Детерминированный ремонт",
+      "file_path": "res://scripts/generation/validation/floor_repairer.gd",
+      "responsibility": "Чинит достижимость, двери, критический путь, ключи, интерьер, safe-зоны, бюджет и специальные комнаты в фиксированном порядке, не удаляя обязательные сущности.",
+      "public_functions": [
+        "repair(floor: Dictionary, report: ValidationReport, context: Dictionary) -> Dictionary",
+        "repair_issue(issue: Dictionary, floor: Dictionary, context: Dictionary) -> bool",
+        "repair_doors(floor: Dictionary, context: Dictionary) -> bool"
+      ],
+      "dependencies": [
+        "res://scripts/generation/validation/validation_report.gd",
+        "res://scripts/generation/floor/graph_metrics.gd",
+        "res://scripts/generation/floor/door_builder.gd",
+        "res://scripts/generation/floor/lock_key_planner.gd"
+      ]
+    },
+    {
+      "name": "Сериализация этажа",
+      "file_path": "res://scripts/generation/serialization/floor_serializer.gd",
+      "responsibility": "Преобразует этаж в версионированный JSON и обратно, канонизирует порядок комнат, дверей, сущностей и ключей, проверяет round-trip и миграции схемы.",
+      "public_functions": [
+        "to_dict(floor: Dictionary) -> Dictionary",
+        "from_dict(data: Dictionary) -> Dictionary",
+        "to_json(floor: Dictionary, pretty: bool = false) -> String"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd",
+        "res://scripts/generation/serialization/graph_hasher.gd"
+      ]
+    },
+    {
+      "name": "Фасад генерации этажа",
+      "file_path": "res://scripts/generation/floor_generator.gd",
+      "responsibility": "Оркестрирует один этаж: RNG-потоки, макрогенерацию, роли, двери, ключи, интерьер, сущности, валидацию, ремонт и сериализацию; возвращает floor, report, attempts, elapsed_ms и hash.",
+      "public_functions": [
+        "generate_floor(seed: int, floor_index: int) -> Dictionary",
+        "generate_floor_with_repair(seed: int, floor_index: int) -> Dictionary",
+        "validate(floor: Dictionary) -> ValidationReport"
+      ],
+      "dependencies": [
+        "res://scripts/generation/contracts/i_generation_algorithm.gd",
+        "res://scripts/generation/floor/room_role_assigner.gd",
+        "res://scripts/generation/floor/door_builder.gd",
+        "res://scripts/generation/floor/lock_key_planner.gd"
+      ]
+    },
+    {
+      "name": "Генератор забега",
+      "file_path": "res://scripts/generation/run_generator.gd",
+      "responsibility": "Генерирует этажи 1–3 из seed забега, выводит независимые seed этажей, проверяет переходы и объединяет отчёты в run payload.",
+      "public_functions": [
+        "generate_run(run_seed: int, floor_count: int = 3) -> Dictionary",
+        "derive_floor_seed(run_seed: int, floor_index: int) -> int",
+        "validate_run(run_data: Dictionary) -> ValidationReport"
+      ],
+      "dependencies": [
+        "res://scripts/generation/floor_generator.gd",
+        "res://scripts/generation/validation/retry_policy.gd",
+        "res://scripts/generation/serialization/floor_serializer.gd"
+      ]
+    },
+    {
+      "name": "Фабрика алгоритмов",
+      "file_path": "res://scripts/generation/generator_factory.gd",
+      "responsibility": "Регистрирует реализации IGenerationAlgorithm по stage и id, создаёт FloorGenerator и собирает валидаторы; обеспечивает замену алгоритма без изменения остального кода.",
+      "public_functions": [
+        "register_algorithm(stage: String, id: String, factory: Callable) -> void",
+        "create_algorithm(stage: String, id: String) -> IGenerationAlgorithm",
+        "create_floor_generator(config: Dictionary, data_bundle: Dictionary) -> FloorGenerator"
+      ],
+      "dependencies": [
+        "res://scripts/generation/contracts/i_generation_algorithm.gd",
+        "res://scripts/generation/floor_generator.gd",
+        "res://scripts/generation/validation/validator_registry.gd",
+        "res://scripts/generation/floor/spine_branch_generator.gd"
+      ]
+    },
+    {
+      "name": "Загрузчик данных",
+      "file_path": "res://scripts/generation/engine/generation_data_loader.gd",
+      "responsibility": "Единственное место чтения JSON через FileAccess: конфиг, schema, шаблоны, пулы и fallback-этажи; возвращает чистые Dictionary и Array.",
+      "public_functions": [
+        "load_json(path: String) -> Dictionary",
+        "load_config(path: String) -> Dictionary",
+        "load_templates(path: String) -> Array"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_config.gd",
+        "res://scripts/generation/interior/room_template.gd"
+      ]
+    },
+    {
+      "name": "Адаптер домена к движку",
+      "file_path": "res://scripts/generation/engine/room_payload_adapter.gd",
+      "responsibility": "Переводит доменную комнату, двери, сущности и координаты 13x7/32px в room_data и геометрию текущего RoomGrid, не пропуская движковые типы в домен.",
+      "public_functions": [
+        "to_engine_room(room: Dictionary, floor: Dictionary) -> Dictionary",
+        "to_engine_doors(room: Dictionary) -> Dictionary",
+        "to_engine_entities(room: Dictionary) -> Array"
+      ],
+      "dependencies": [
+        "res://scripts/generation/core/generation_types.gd",
+        "res://scripts/room_grid.gd"
+      ]
+    },
+    {
+      "name": "Autoload MapGenerator",
+      "file_path": "res://scripts/map_generator.gd",
+      "responsibility": "Тонкий адаптер для существующего автолоада: сохраняет API для RoomManager, вызывает RunGenerator, хранит текущий этаж и JSON, отдаёт room_data и discovered-состояние.",
+      "public_functions": [
+        "generate_map(seed_override: int = -1) -> void",
+        "get_room_data(pos: Vector2i) -> Dictionary",
+        "get_adjacent_room(pos: Vector2i, direction: String) -> Vector2i"
+      ],
+      "dependencies": [
+        "res://scripts/generation/run_generator.gd",
+        "res://scripts/generation/engine/generation_data_loader.gd",
+        "res://scripts/generation/engine/room_payload_adapter.gd"
+      ]
+    },
+    {
+      "name": "Запуск тестов",
+      "file_path": "res://tests/test_runner.gd",
+      "responsibility": "Headless-раннер: фиксированный порядок наборов, сводка, код выхода для CI; без случайного порядка.",
+      "public_functions": [
+        "register_suite(suite: TestCase) -> void",
+        "run() -> int",
+        "print_summary() -> void"
+      ],
+      "dependencies": [
+        "res://tests/framework/test_case.gd"
+      ]
+    },
+    {
+      "name": "Тесты ядра и макрогенерации",
+      "file_path": "res://tests/unit/test_core_macro.gd",
+      "responsibility": "Проверяет RNG и потоки, уникальность id, конфиг, связность графа, глубину BOSS, роли, двери, ключи и отсутствие циклов.",
+      "public_functions": [
+        "test_rng_repeatability() -> void",
+        "test_stable_ids_are_unique() -> void",
+        "test_graph_is_connected() -> void"
+      ],
+      "dependencies": [
+        "res://tests/framework/test_case.gd",
+        "res://scripts/generation/core/deterministic_rng.gd",
+        "res://scripts/generation/floor/spine_branch_generator.gd",
+        "res://scripts/generation/floor/door_builder.gd"
+      ]
+    },
+    {
+      "name": "Тесты интерьера и сущностей",
+      "file_path": "res://tests/unit/test_interior_entities.gd",
+      "responsibility": "Проверяет шаблоны 13x7, выбор и мутации, flood fill, entry clearance, арену BOSS, бюджет, safe-зону, достижимость наград и ловушки.",
+      "public_functions": [
+        "test_template_dimensions() -> void",
+        "test_walkability_after_mutation() -> void",
+        "test_entry_clearance() -> void"
+      ],
+      "dependencies": [
+        "res://tests/framework/test_case.gd",
+        "res://scripts/generation/interior/interior_generator.gd",
+        "res://scripts/generation/interior/walkability_solver.gd",
+        "res://scripts/generation/entities/entity_budget.gd"
+      ]
+    },
+    {
+      "name": "Тесты валидации и конвейера",
+      "file_path": "res://tests/integration/test_validation_pipeline.gd",
+      "responsibility": "Подаёт сломанные фикстуры, проверяет срабатывание валидаторов, ремонт, идемпотентность, fallback, полный этаж, три этажа и совпадение hash.",
+      "public_functions": [
+        "test_validators_catch_broken_fixtures() -> void",
+        "test_repair_fixes_floor() -> void",
+        "test_retry_policy_uses_fallback() -> void"
+      ],
+      "dependencies": [
+        "res://tests/framework/test_case.gd",
+        "res://scripts/generation/validation/validator_registry.gd",
+        "res://scripts/generation/validation/floor_repairer.gd",
+        "res://scripts/generation/run_generator.gd"
+      ]
+    },
+    {
+      "name": "Тесты производительности",
+      "file_path": "res://tests/performance/test_generation_budget.gd",
+      "responsibility": "Измеряет p95 полной генерации, валидатора и ремонта на наборе seed; проверяет лимиты 50/10/20 мс и отсутствие влияния метрик на hash.",
+      "public_functions": [
+        "test_generation_p95_under_50ms() -> void",
+        "test_validator_under_10ms() -> void",
+        "test_repair_under_20ms() -> void"
+      ],
+      "dependencies": [
+        "res://tests/framework/test_case.gd",
+        "res://scripts/generation/run_generator.gd",
+        "res://scripts/generation/validation/performance_validator.gd"
+      ]
+    },
+    {
+      "name": "Фикстуры и golden snapshots",
+      "file_path": "res://tests/fixtures/generation_fixtures.gd и res://tests/golden/",
+      "responsibility": "Строит минимальные валидные и намеренно сломанные этажи, а также хранит эталонные JSON для проверки схемы и canonical hash.",
+      "public_functions": [
+        "make_minimal_floor(floor_index: int = 1) -> Dictionary",
+        "make_broken_doors() -> Dictionary",
+        "make_cyclic_locks() -> Dictionary"
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "Данные генерации",
+      "file_path": "res://data/generation/",
+      "responsibility": "JSON Schema этажа, конфиг по умолчанию, пулы этажей 1-3, шаблоны комнат 13x7 и заранее проверенные fallback-этажи.",
+      "public_functions": [],
+      "dependencies": []
+    }
+  ],
+  "data_flow": [
+    "GenerationDataLoader читает schema, конфиг, пулы, шаблоны и fallback, проверяет schema_version и обязательные поля.",
+    "RunGenerator выводит seed этажа и создаёт корневой DeterministicRng с именованными потоками.",
+    "GeneratorFactory по stage/id создаёт макрогенератор, интерьерный генератор, разместитель и валидаторы.",
+    "SpineBranchGenerator строит позвоночник, ветки и петли; GraphMetrics считает глубины, критический путь и глубину BOSS.",
+    "RoomRoleAssigner назначает роли; DoorBuilder создаёт симметричные двери; LockKeyPlanner добавляет необязательные замки и ключи.",
+    "Для каждой комнаты TemplateSelector выбирает шаблон, InteriorGenerator применяет мутации, WalkabilitySolver проверяет связность.",
+    "EntityBudget строит бюджет и allocations; SafeZoneBuilder размечает входы; EntityPlacer и SpecialRoomPlacer размещают контент.",
+    "ValidatorRegistry запускает проверки; FloorRepairer чинит этаж; RetryPolicy делает до трёх попыток и выбирает fallback."
+  ],
+  "testing_plan": [
+    "Unit RNG: одинаковый seed и stream дают одинаковую последовательность, разные stream независимы, границы и weighted pick стабильны, глобальный randi не вызывается.",
+    "Unit IDs/config: id уникальны и воспроизводимы, schema version и обязательные поля валидируются, некорректный конфиг отклоняется.",
+    "Unit macro: граф связен, BOSS на максимальной глубине, критический путь без специальных комнат, петли только между NORMAL одной глубины, лимиты степени и количества соблюдены.",
+    "Unit doors/keys: двери симметричны, висячих и дубликатов нет, ключ достижим до замка, биекция и отсутствие циклов подтверждены.",
+    "Unit interior: сетка 13x7, двери в допустимых слотах, flood fill достигает целей, entry clearance 3x3, boss arena 7x5, fallback валиден.",
+    "Unit entities: сумма cost не превышает budget, bucket caps и множители корректны, safe zone 3 BFS, item reachability, trap visibility, special content.",
+    "Unit validation/repair: каждый валидатор ловит сломанный fixture, ремонт устраняет ошибку, повторный запуск идемпотентен, после трёх попыток используется fallback.",
+    "Serialization: JSON round-trip, canonical hash, schema version и golden snapshots совпадают."
+  ],
+  "implementation_order": [
+    "Каркас каталогов, GenerationTypes, DeterministicRng, StableIds, GenerationConfig и тестовый harness.",
+    "JSON Schema, GenerationDataLoader, базовые пулы, шаблоны и fallback для этажа 1.",
+    "GraphMetrics, IGenerationAlgorithm и SpineBranchGenerator; тесты связности, глубины и петель.",
+    "RoomRoleAssigner, DoorBuilder и LockKeyPlanner; проверки специальных комнат, дверей и ключей.",
+    "RoomTemplate, TemplateRepository, TemplateSelector, InteriorGenerator и WalkabilitySolver.",
+    "EntityBudget, EntityPools, SafeZoneBuilder, EntityPlacer и SpecialRoomPlacer.",
+    "ValidationReport, IValidator, ValidatorRegistry и валидаторы графа, интерьера, сущностей и ключей.",
+    "FloorRepairer, RetryPolicy, детерминированные repair-потоки и fallback-этажи.",
+    "GraphHasher, FloorSerializer, schema version и golden snapshots.",
+    "FloorGenerator, RunGenerator и GeneratorFactory; сборка полного конвейера."
+  ]
+}

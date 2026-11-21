@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.steam.ed1daf0bf - https://godotengine.org
+
+floor=1 seeds=100 failures=0 fallbacks=0 retried=0 max_attempt=0 avg_rooms=10.0 mean=16.47 p95=20.06 max=22.59 (seed 78)
+floor=2 seeds=100 failures=0 fallbacks=0 retried=0 max_attempt=0 avg_rooms=14.0 mean=25.14 p95=29.48 max=32.58 (seed 97)
+floor=3 seeds=100 failures=0 fallbacks=0 retried=0 max_attempt=0 avg_rooms=18.0 mean=32.02 p95=38.17 max=39.95 (seed 3)
+=== GAME MANAGER READY ===
+=== MAP GENERATED ===
+seed=0 floor=1 status=PASS rooms=10 time_ms=11.798
+  (1, 2) -> normal doors={ "up": true, "down": true, "left": true, "right": true } enemies=0 obstacles=0
+  (1, 1) -> normal doors={ "up": false, "down": true, "left": true, "right": true } enemies=0 obstacles=3
+  (1, 3) -> normal doors={ "up": true, "down": false, "left": false, "right": true } enemies=3 obstacles=1
+  (0, 2) -> normal doors={ "up": false, "down": true, "left": false, "right": true } enemies=4 obstacles=3
+  (0, 1) -> normal doors={ "up": true, "down": false, "left": false, "right": true } enemies=3 obstacles=1
+  (0, 0) -> boss doors={ "up": false, "down": true, "left": false, "right": false } enemies=1 obstacles=0
+  (0, 3) -> normal doors={ "up": true, "down": false, "left": false, "right": false } enemies=0 obstacles=0
+  (2, 2) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+  (2, 1) -> normal doors={ "up": false, "down": false, "left": true, "right": false } enemies=8 obstacles=2
+  (2, 3) -> start doors={ "up": false, "down": false, "left": true, "right": false } enemies=0 obstacles=0
+[MCP Runtime] _ready() ENTERED — autoload instantiated successfully
+[MCP Runtime] Loaded and ready for IPC
+[MCP Runtime] IPC base dir: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/
+[MCP Runtime] Request path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_request.json
+[MCP Runtime] Response path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_response.json
+[MCP Runtime] Ready file: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_ready
+[MCP Runtime] Handshake file written successfully
+[MCP Runtime] _poll_ipc() — path: C:/Users/shubi/AppData/Roaming/Godot/app_userdata/ill try/mcp_runtime_request.json, exists: false

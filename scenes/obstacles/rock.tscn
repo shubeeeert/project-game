@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://j7k52i04w0rj"]
+
+[ext_resource type="Script" uid="uid://cb07g36w5rh5e" path="res://obstacle.gd" id="1_gung0"]
+[ext_resource type="Texture2D" path="res://sprites/rock_cyber.png" id="2_h5txw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3xd07"]
+size = Vector2(64, 64)
+
+[node name="Rock" type="StaticBody2D" unique_id=1764381836]
+collision_layer = 16
+collision_mask = 0
+z_index = 2
+script = ExtResource("1_gung0")
+obstacle_type = "rock"
+health = 0
+solid = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=16341571]
+shape = SubResource("RectangleShape2D_3xd07")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=108100099]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_h5txw")

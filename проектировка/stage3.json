@@ -1,0 +1,797 @@
+{
+  "algorithm_name": "DeterministicSpineBranchFloorGenerator",
+  "description": "Алгоритм строит этаж за фиксированную последовательность фаз: нормализация конфигурации, создание RNG-потоков из seed, размещение START, выращивание критического пути до целевой глубины BOSS, создание веток с ограничением глубины ниже BOSS, размещение обязательных и опциональных специальных комнат, добавление петель, назначение замков и ключей, расчёт бюджетов сложности, валидация, детерминированный ремонт и каноническая JSON-сериализация. Каркас этажа — остовное дерево: сначала создаётся самонепересекающийся критический путь START -> NORMAL -> ... -> BOSS, затем от комнат пути и уже созданных веток растут короткие ответвления. Ветки ограничены по глубине так, чтобы BOSS оставался самой удалённой комнатой от START. Петли добавляются только между комнатами NORMAL одинаковой BFS-глубины, поэтому они не сокращают путь к BOSS и не могут сделать BOSS не самым удалённым. SHOP, TREASURE, BOSS и опциональные специальные комнаты являются листьями с одной дверью и не соединяются друг с другом. SHOP размещается на короткой ветке вблизи START. Замки разрешены только на необязательных ветках, а ключ размещается в области, достижимой до замка. Все двери создаются парами: если у комнаты A есть дверь north, у соседней комнаты B создаётся дверь south. Любое случайное решение использует только производные RNG-потоки; порядок обхода и разрешение ничьих стабилизированы сортировкой по координатам и seed-зависимому хэшу. При исчерпании попыток возвращается заранее валидированный резервный этаж для соответствующего floor_index. Выход не содержит времени выполнения в канонической части, чтобы одинаковый seed и конфигурация давали идентичный graph_hash.",
+  "inputs": {
+    "seed": {
+      "type": "uint64",
+      "required": true,
+      "description": "Seed забега. Из него детерминированно выводятся потоки floor:<index>, path, branches, specials, loops, locks, repairs."
+    },
+    "floor_index": {
+      "type": "int",
+      "required": true,
+      "min": 1,
+      "max": 3,
+      "description": "Номер генерируемого этажа, начиная с 1."
+    },
+    "floor_count": {
+      "type": "int",
+      "default": 3,
+      "min": 1,
+      "max": 3,
+      "description": "Общее число этажей забега."
+    },
+    "generator_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Версия алгоритма и схемы сериализации; участвует в config_hash."
+    },
+    "macro_grid": {
+      "type": "object",
+      "default": {
+        "width": 9,
+        "height": 7
+      },
+      "description": "Размер макросетки комнат в клетках. Каждая клетка соответствует одной комнате."
+    },
+    "room_count_targets": {
+      "type": "array",
+      "default": [
+        10,
+        14,
+        18
+      ],
+      "min": 9,
+      "max": 20,
+      "description": "Целевое число комнат для этажей 1, 2 и 3."
+    },
+    "boss_depth_targets": {
+      "type": "array",
+      "default": [
+        5,
+        6,
+        8
+      ],
+      "min": 4,
+      "max": 9,
+      "description": "Целевая глубина BOSS в рёбрах от START для этажей 1, 2 и 3."
+    },
+    "critical_path_min_rooms": {
+      "type": "int",
+      "default": 5,
+      "description": "Минимальная длина критического пути в комнатах, включая START и BOSS."
+    },
+    "critical_path_max_rooms": {
+      "type": "int",
+      "default": 10,
+      "description": "Максимальная длина критического пути в комнатах."
+    },
+    "allow_start_near_boss": {
+      "type": "bool",
+      "default": false,
+      "description": "Разрешает физическую близость START и BOSS. По умолчанию запрещено."
+    },
+    "min_boss_grid_distance": {
+      "type": "int",
+      "default": 4,
+      "description": "Минимальное манхэттенское расстояние между START и BOSS в клетках макросетки."
+    },
+    "loop_chance": {
+      "type": "float",
+      "default": 0.15,
+      "min": 0.0,
+      "max": 0.35,
+      "description": "Вероятность добавить допустимую петлю между NORMAL одинаковой глубины."
+    },
+    "branch_chance": {
+      "type": "float",
+      "default": 0.65,
+      "min": 0.0,
+      "max": 1.0,
+      "description": "Вероятность создать ответвление от подходящей комнаты."
+    },
+    "branch_max_length": {
+      "type": "int",
+      "default": 3,
+      "min": 1,
+      "max": 5,
+      "description": "Максимальная длина одной ветки в рёбрах."
+    },
+    "optional_special_chance": {
+      "type": "float",
+      "default": 0.35,
+      "min": 0.0,
+      "max": 1.0,
+      "description": "Вероятность использовать свободный лист под опциональную специальную комнату."
+    },
+    "optional_special_caps": {
+      "type": "array",
+      "default": [
+        2,
+        3,
+        3
+      ],
+      "description": "Максимум опциональных специальных комнат на этажах 1, 2 и 3."
+    },
+    "lock_chance": {
+      "type": "float",
+      "default": 0.2,
+      "min": 0.0,
+      "max": 0.6,
+      "description": "Вероятность запереть подходящую необязательную ветку."
+    },
+    "max_locks_per_floor": {
+      "type": "array",
+      "default": [
+        1,
+        2,
+        2
+      ],
+      "description": "Максимум замков на этажах 1, 2 и 3."
+    },
+    "max_degree": {
+      "type": "int",
+      "default": 4,
+      "min": 1,
+      "max": 4,
+      "description": "Максимальная степень комнаты в графе."
+    },
+    "max_attempts": {
+      "type": "int",
+      "default": 5,
+      "min": 1,
+      "max": 20,
+      "description": "Число детерминированных попыток до перехода к резервному этажу."
+    },
+    "required_room_types": {
+      "type": "array",
+      "default": [
+        "START",
+        "NORMAL",
+        "TREASURE",
+        "BOSS",
+        "SHOP"
+      ],
+      "description": "Типы комнат, которые обязаны присутствовать на каждом этаже."
+    },
+    "enabled_optional_specials": {
+      "type": "array",
+      "default": [],
+      "description": "Опциональные специальные комнаты, доступные для размещения."
+    },
+    "fallback_floor_id": {
+      "type": "string",
+      "default": "fallback_floor",
+      "description": "Идентификатор заранее валидированного резервного этажа."
+    }
+  },
+  "outputs": {
+    "format": "FloorGraphJSON",
+    "schema_version": "1.0.0",
+    "top_level_fields": {
+      "floor_id": "string",
+      "seed": "uint64",
+      "floor_index": "int",
+      "floor_count": "int",
+      "generator_version": "string",
+      "config_hash": "string",
+      "grid": {
+        "width": "int",
+        "height": "int"
+      },
+      "rooms": "Room[]",
+      "edges": "Edge[]",
+      "critical_path": "string[] — упорядоченные id комнат от START до BOSS",
+      "start_id": "string",
+      "boss_id": "string",
+      "locks": "Lock[]",
+      "keys": "Key[]",
+      "stats": "object — room_count, edge_count, loop_count, leaf_count, optional_special_count, max_depth, boss_depth",
+      "validation": "object — ok, errors[], warnings[]",
+      "fallback_used": "bool",
+      "graph_hash": "string"
+    },
+    "room_fields": {
+      "id": "string",
+      "type": "START | NORMAL | TREASURE | BOSS | SHOP",
+      "grid_position": {
+        "x": "int",
+        "y": "int"
+      },
+      "depth": "int — BFS-глубина от START",
+      "doors": "Door[] — 1..4 двери",
+      "interior_size": {
+        "width": 13,
+        "height": 7
+      },
+      "interior_layout": "array — на этапе макрогенерации пустой массив-заглушка",
+      "entities": "array — на этапе макрогенерации пустой массив",
+      "items": "array — на этапе макрогенерации пустой массив",
+      "pickups": "array — на этапе макрогенерации пустой массив",
+      "difficulty_budget": "int",
+      "tags": "string[]",
+      "flags": {
+        "critical_path": "bool",
+        "special": "bool",
+        "locked": "bool"
+      }
+    },
+    "door_fields": {
+      "id": "string",
+      "side": "north | south | east | west",
+      "target_room_id": "string",
+      "paired_door_id": "string",
+      "state": "open | locked | hidden | paid",
+      "door_type": "normal | NORMAL | shop",
+      "lock_id": "string | null"
+    },
+    "edge_fields": {
+      "id": "string",
+      "a": "string",
+      "b": "string",
+      "door_a": "string",
+      "door_b": "string",
+      "kind": "path | branch | loop",
+      "critical_path": "bool",
+      "locked": "bool",
+      "lock_id": "string | null",
+      "key_id": "string | null"
+    },
+    "lock_fields": {
+      "id": "string",
+      "edge_id": "string",
+      "locked_room_id": "string",
+      "key_id": "string",
+      "key_room_id": "string"
+    },
+    "key_fields": {
+      "id": "string",
+      "lock_id": "string",
+      "room_id": "string",
+      "reachable_before_lock": true
+    },
+    "canonicalization": "Ключи объектов сортируются лексикографически, массивы rooms/edges/locks/keys сортируются по стабильному id, числа сериализуются как целые или с фиксированной точностью. generation_ms, attempts и отладочная RNG-трасса не входят в graph_hash.",
+    "example_room": {
+      "id": "r_0001",
+      "type": "NORMAL",
+      "grid_position": {
+        "x": 2,
+        "y": 3
+      },
+      "depth": 2,
+      "doors": [
+        {
+          "id": "d_0001",
+          "side": "east",
+          "target_room_id": "r_0002",
+          "paired_door_id": "d_0002",
+          "state": "open",
+          "door_type": "normal",
+          "lock_id": null
+        }
+      ],
+      "interior_size": {
+        "width": 13,
+        "height": 7
+      },
+      "interior_layout": [],
+      "entities": [],
+      "items": [],
+      "pickups": [],
+      "difficulty_budget": 30,
+      "tags": [
+        "critical_path"
+      ],
+      "flags": {
+        "critical_path": true,
+        "special": false,
+        "locked": false
+      }
+    },
+    "example_edge": {
+      "id": "e_0001",
+      "a": "r_0001",
+      "b": "r_0002",
+      "door_a": "d_0001",
+      "door_b": "d_0002",
+      "kind": "path",
+      "critical_path": true,
+      "locked": false,
+      "lock_id": null,
+      "key_id": null
+    }
+  },
+  "pseudocode": [
+    "FUNCTION GenerateFloor(config, seed, floor_index)",
+    "  cfg = NormalizeAndValidateConfig(config)",
+    "  Require(seed is uint64)",
+    "  Require(1 <= floor_index <= cfg.floor_count)",
+    "  rng = Rng.Derive(seed, stream = \"floor:\" + floor_index)",
+    "  for attempt in 1..cfg.max_attempts do",
+    "    graph = NewGraph(width = cfg.macro_grid.width, height = cfg.macro_grid.height)",
+    "    target_rooms = cfg.room_count_targets[floor_index - 1]",
+    "    target_depth = cfg.boss_depth_targets[floor_index - 1]",
+    "    start_cell = PickPeripheralStartCell(graph, rng, cfg)",
+    "    start = AddRoom(graph, type = START, cell = start_cell, depth = 0)",
+    "    spine = GrowCriticalSpine(graph, start, target_depth, rng, cfg)",
+    "    if spine == null or Length(spine) < cfg.critical_path_min_rooms then continue",
+    "    if Length(spine) > cfg.critical_path_max_rooms then continue",
+    "    boss = Last(spine)",
+    "    SetType(boss, BOSS)",
+    "    if not BossPlacementValid(graph, start, boss, cfg) then continue",
+    "    MarkCriticalPath(graph, spine)",
+    "    branch_slots = GrowBranches(graph, spine, target_depth, target_rooms, rng, cfg)",
+    "    branch_slots = ReserveRequiredSpecialSlots(graph, branch_slots, spine, rng, cfg)",
+    "    if not PlaceRequiredSpecials(graph, branch_slots, rng, cfg) then continue",
+    "    PlaceOptionalSpecials(graph, branch_slots, rng, cfg)",
+    "    if RoomCount(graph) > cfg.max_rooms then continue",
+    "    AddEqualDepthLoops(graph, rng, cfg)",
+    "    PlaceLocksAndKeys(graph, rng, cfg)",
+    "    AssignDifficultyBudgets(graph, floor_index, cfg)",
+    "    validation = ValidateFloor(graph, cfg)",
+    "    if validation.ok then return SerializeCanonical(graph)",
+    "    graph = RepairFloor(graph, validation, rng, cfg)",
+    "    if ValidateFloor(graph, cfg).ok then return SerializeCanonical(graph)",
+    "  end for",
+    "  fallback = LoadValidatedFallback(cfg.fallback_floor_id, floor_index)",
+    "  fallback.fallback_used = true",
+    "  fallback.seed = seed",
+    "  fallback.config_hash = HashConfig(cfg)",
+    "  return SerializeCanonical(fallback)",
+    "FUNCTION GrowCriticalSpine(graph, start, target_depth, rng, cfg)",
+    "  path = [start]",
+    "  current = start",
+    "  while Depth(current) < target_depth do",
+    "    candidates = FreeCardinalNeighbors(graph, current)",
+    "    candidates = Filter(candidates, c => not IsAdjacentToPathExcept(c, path, current))",
+    "    candidates = Filter(candidates, c => Manhattan(c, start.cell) >= cfg.start_clearance)",
+    "    candidates = Filter(candidates, c => HasEnoughFreeNeighbors(graph, c, 1))",
+    "    if candidates is empty then",
+    "      if not BacktrackSpine(path, graph, cfg) then return null",
+    "      current = Last(path)",
+    "      continue",
+    "    end if",
+    "    next = StableWeightedPick(candidates, weight = 1 + 2 * DistanceGain(next, start) + rng.Float(0, 0.5), rng)",
+    "    room = AddRoom(graph, type = NORMAL, cell = next, depth = Depth(current) + 1)",
+    "    ConnectRooms(graph, current, room, kind = path)",
+    "    path.append(room)",
+    "    current = room",
+    "  end while",
+    "  if Manhattan(current.cell, start.cell) < cfg.min_boss_grid_distance then return null",
+    "  if CardinalDistance(current.cell, start.cell) == 1 and not cfg.allow_start_near_boss then return null",
+    "  return path",
+    "FUNCTION GrowBranches(graph, spine, target_depth, target_rooms, rng, cfg)",
+    "  slots = []",
+    "  attach_candidates = StableShuffle(spine[1..-2], rng)",
+    "  for attach in attach_candidates do",
+    "    if RoomCount(graph) >= target_rooms then break",
+    "    if not rng.Chance(cfg.branch_chance) then continue",
+    "    max_len = Min(cfg.branch_max_length, target_depth - Depth(attach) - 1)",
+    "    if max_len < 1 then continue",
+    "    branch = GrowShortBranch(graph, attach, max_len, rng, cfg)",
+    "    if branch is not empty then",
+    "      leaf = Last(branch)",
+    "      slots.append(leaf)",
+    "    end if",
+    "  end for",
+    "  return Filter(slots, s => IsLeafWithOneDoor(s))",
+    "FUNCTION GrowShortBranch(graph, attach, max_len, rng, cfg)",
+    "  branch = []",
+    "  current = attach",
+    "  for step in 1..max_len do",
+    "    candidates = FreeCardinalNeighbors(graph, current)",
+    "    candidates = Filter(candidates, c => not IsAdjacentToAnyRoomExcept(c, current))",
+    "    candidates = Filter(candidates, c => Depth(current) + 1 < TargetBossDepth(graph))",
+    "    if candidates is empty then break",
+    "    next = StableWeightedPick(candidates, weight = 1 + rng.Float(0, 0.25), rng)",
+    "    room = AddRoom(graph, type = NORMAL, cell = next, depth = Depth(current) + 1)",
+    "    ConnectRooms(graph, current, room, kind = branch)",
+    "    branch.append(room)",
+    "    current = room",
+    "  end for",
+    "  return branch",
+    "FUNCTION ReserveRequiredSpecialSlots(graph, slots, spine, rng, cfg)",
+    "  for type in required do",
+    "    if HasFreeSpecialSlot(slots, type, graph, cfg) then continue",
+    "    attach = ChoosePathAttachForSpecial(graph, spine, type, rng, cfg)",
+    "    new_slot = ForceBranchEnd(graph, attach, type, rng, cfg)",
+    "    if new_slot == null then return null",
+    "    slots.append(new_slot)",
+    "  end for",
+    "  return StableSortByCell(slots)",
+    "FUNCTION PlaceRequiredSpecials(graph, slots, rng, cfg)",
+    "  shop_slot = StableWeightedPick(Filter(slots, s => Depth(s) <= cfg.shop_depth_max), weight = 1 / (1 + Depth(s)), rng)",
+    "  if shop_slot == null then return false",
+    "  SetType(shop_slot, SHOP)",
+    "  treasure_slot = StableWeightedPick(Filter(slots, s => InRange(Depth(s), 2, TargetBossDepth(graph) - 2) and not IsSpecialAdjacent(s)), weight = 1, rng)",
+    "  if treasure_slot == null then return false",
+    "  SetType(treasure_slot, TREASURE)",
+    "  dead_slot = StableWeightedPick(Filter(slots, s => s.type == NORMAL and not IsSpecialAdjacent(s)), weight = 1, rng)",
+    "  if dead_slot == null then return false",
+    "  return true",
+    "FUNCTION PlaceOptionalSpecials(graph, slots, rng, cfg)",
+    "  cap = cfg.optional_special_caps[graph.floor_index - 1]",
+    "  placed = 0",
+    "  for slot in StableShuffle(slots, rng) do",
+    "    if placed >= cap then break",
+    "    if slot.type != NORMAL or not IsLeafWithOneDoor(slot) then continue",
+    "    if IsSpecialAdjacent(slot) then continue",
+    "    if not rng.Chance(cfg.optional_special_chance) then continue",
+    "    type = StableWeightedPick(cfg.enabled_optional_specials, weight = 1, rng)",
+    "    SetType(slot, type)",
+    "    placed = placed + 1",
+    "  end for",
+    "FUNCTION AddEqualDepthLoops(graph, rng, cfg)",
+    "  candidates = []",
+    "  for each pair (a, b) of NORMAL rooms where CardinalDistance(a, b) == 1 do",
+    "    if a.depth != b.depth then continue",
+    "    if HasEdge(graph, a, b) then continue",
+    "    if Degree(a) >= cfg.max_degree or Degree(b) >= cfg.max_degree then continue",
+    "    if IsSpecial(a) or IsSpecial(b) then continue",
+    "    candidates.append((a, b))",
+    "  end for",
+    "  for (a, b) in StableShuffle(candidates, rng) do",
+    "    if rng.Chance(cfg.loop_chance) then ConnectRooms(graph, a, b, kind = loop)",
+    "  end for",
+    "FUNCTION ConnectRooms(graph, a, b, kind)",
+    "  Require(CardinalDistance(a.cell, b.cell) == 1)",
+    "  Require(not HasEdge(graph, a, b))",
+    "  Require(Degree(a) < cfg.max_degree and Degree(b) < cfg.max_degree)",
+    "  side_a = DirectionFromTo(a.cell, b.cell)",
+    "  side_b = Opposite(side_a)",
+    "  door_a = NewDoor(side = side_a, target = b.id, state = open)",
+    "  door_b = NewDoor(side = side_b, target = a.id, state = open)",
+    "  LinkPairedDoors(door_a, door_b)",
+    "  a.doors.append(door_a)",
+    "  b.doors.append(door_b)",
+    "  edge = NewEdge(a, b, door_a, door_b, kind)",
+    "  graph.edges.append(edge)",
+    "  RecomputeBfsDepths(graph)",
+    "FUNCTION PlaceLocksAndKeys(graph, rng, cfg)",
+    "  max_locks = cfg.max_locks_per_floor[graph.floor_index - 1]",
+    "  locks_used = 0",
+    "  candidates = Filter(candidates, e => not e.critical_path and not e.locked and Depth(child) >= 2)",
+    "  for edge in StableShuffle(candidates, rng) do",
+    "    if locks_used >= max_locks then break",
+    "    if not rng.Chance(cfg.lock_chance) then continue",
+    "    reachable = BfsFromStart(graph, blocked = all_locked_edges)",
+    "    parent = EdgeEndpointCloserToStart(edge, reachable)",
+    "    if parent == null then continue",
+    "    if key_slots is empty then continue",
+    "    key_room = StableWeightedPick(key_slots, weight = 1, rng)",
+    "    lock_id = StableId(\"lock\", edge.id)",
+    "    key_id = StableId(\"key\", edge.id)",
+    "    edge.locked = true",
+    "    edge.lock_id = lock_id",
+    "    edge.key_id = key_id",
+    "    SetDoorState(edge.door_a, locked, lock_id)",
+    "    SetDoorState(edge.door_b, locked, lock_id)",
+    "    AddKey(graph, id = key_id, lock_id = lock_id, room = key_room, reachable_before_lock = true)",
+    "    locks_used = locks_used + 1",
+    "  end for",
+    "FUNCTION AssignDifficultyBudgets(graph, floor_index, cfg)",
+    "  step = [1.0, 1.6, 2.3][floor_index - 1]",
+    "  for room in graph.rooms do",
+    "    depth_factor = Clamp(0.9 + 0.04 * room.depth, 0.9, 1.1)",
+    "    modifier = TypeModifier(room.type)",
+    "    if room.type in [START, SHOP] then room.difficulty_budget = 0",
+    "    else room.difficulty_budget = Floor(30 * step * role * modifier * depth_factor)",
+    "  end for",
+    "  if not BossBudgetIsMaximum(graph): RebalanceNormalBudgets(graph)",
+    "  if not TotalBudgetWithinTolerance(graph, 0.10): RebalanceNormalBudgets(graph)",
+    "FUNCTION ValidateFloor(graph, cfg)",
+    "  CheckRequiredRoomCounts(graph)",
+    "  CheckSingleStartBossShopTreasure(graph)",
+    "  CheckConnectivityFromStart(graph)",
+    "  CheckNoDoorlessRooms(graph)",
+    "  CheckDoorSymmetryAndOppositeSides(graph)",
+    "  CheckNoDoorToVoidOrDiagonalEdge(graph)",
+    "  CheckDegreeAtMostFour(graph)",
+    "  CheckBossIsFarthestRoom(graph)",
+    "  CheckStartBossDistanceAndAdjacency(graph, cfg)",
+    "  CheckCriticalPathHasNoLocksOrPaidDoors(graph)",
+    "  CheckTreasureSecretAndShopAreOffPath(graph)",
+    "  CheckSpecialRoomsAreSingleDoorLeaves(graph)",
+    "  CheckSpecialRoomsArePairwiseNonAdjacent(graph)",
+    "  CheckSecretDoesNotBlockProgress(graph)",
+    "  CheckLocksAndKeysOrdering(graph)",
+    "  CheckLoopsDoNotShortenBossPath(graph)",
+    "  CheckRoomCountBounds(graph, cfg)",
+    "  CheckUniqueIdsAndGridPositions(graph)",
+    "  CheckDifficultyBudgets(graph)",
+    "  return ValidationResult(errors, warnings)",
+    "FUNCTION RepairFloor(graph, validation, rng, cfg)",
+    "  if validation.has(\"SPECIAL_ADJACENCY\") then RelocateOptionalSpecial(graph, rng, cfg)",
+    "  if validation.has(\"SPECIAL_NOT_LEAF\") then RebuildSpecialAsLeaf(graph, rng, cfg)",
+    "  if validation.has(\"BOSS_NOT_FARTHEST\") then RemoveInvalidLoopsOrTrimBranches(graph, rng, cfg)",
+    "  if validation.has(\"LOCK_KEY_ORDER\") then RemoveInvalidLockAndKey(graph, rng, cfg)",
+    "  if validation.has(\"DOOR_PAIR_MISMATCH\") then RebuildDoorsFromEdges(graph)",
+    "  if validation.has(\"TOO_FEW_ROOMS\") then AddDeterministicBranch(graph, rng, cfg)",
+    "  if validation.has(\"TOO_MANY_ROOMS\") then RemoveOptionalLeaf(graph, rng, cfg)",
+    "  RecomputeBfsDepths(graph)",
+    "  return graph",
+    "FUNCTION SerializeCanonical(graph)",
+    "  SortRoomsById(graph.rooms)",
+    "  SortEdgesByStableKey(graph.edges)",
+    "  SortDoorsBySideAndTarget(graph.rooms)",
+    "  SortLocksAndKeysById(graph.locks, graph.keys)",
+    "  payload = BuildDeterministicPayload(graph)",
+    "  payload.graph_hash = Sha256(CanonicalJson(payload))",
+    "  return CanonicalJson(payload)"
+  ],
+  "room_placement_rules": [
+    "Одна комната занимает ровно одну клетку макросетки; две комнаты не могут иметь одинаковые grid_position.",
+    "Соседство комнат возможно только по четырём сторонам; диагональные соединения и размещение запрещены.",
+    "START размещается на периферии макросетки, предпочтительно в клетке с достаточным числом свободных соседей для роста пути.",
+    "Критический путь выращивается как самонепересекающаяся цепочка клеток; клетки пути не должны быть смежными, кроме соседних по пути.",
+    "Базовые комнаты критического пути имеют тип NORMAL; START и BOSS являются концами пути.",
+    "BOSS размещается в конце критического пути на целевой глубине и обязан иметь максимальную BFS-глубину среди всех комнат этажа.",
+    "BOSS не может быть физически смежным со START, если allow_start_near_boss = false; дополнительно проверяется min_boss_grid_distance.",
+    "Ветки растут от комнат критического пути и от уже созданных NORMAL; глубина любой ветки обязана быть меньше глубины BOSS.",
+    "Ветка начинается только от комнаты, у которой есть свободный кардинальный сосед и степень меньше max_degree.",
+    "SHOP размещается на короткой ветке вблизи START, предпочтительно на глубине 1–3, и не должен лежать на критическом пути.",
+    "TREASURE размещается вне критического пути, предпочтительно на глубине 2–5, и не должно быть физически смежным с другой специальной комнатой.",
+    "Опциональные специальные комнаты занимают свободные листья после размещения обязательных комнат и не могут превышать лимит этажа.",
+    "Специальные комнаты не должны быть кардинально смежными друг с другом, если это не разрешено отдельной конфигурацией.",
+    "Если для обязательной специальной комнаты нет подходящего листа, создаётся дополнительная короткая ветка от допустимой комнаты NORMAL.",
+    "При нехватке места в макросетке попытка завершается ошибкой и повторяется с новым производным RNG-потоком попытки.",
+    "Резервный этаж использует фиксированную проверенную раскладку и обязан проходить все те же правила размещения."
+  ],
+  "edge_rules": [
+    "Ребро создаётся только между комнатами, которые являются кардинальными соседями на макросетке.",
+    "Между двумя комнатами допускается не более одного ребра; дубликаты и кратные двери запрещены.",
+    "Каждое ребро создаёт ровно две двери: door_a в комнате A и door_b в комнате B.",
+    "Если дверь A направлена north, дверь B обязана быть south; east соответствует west, и наоборот.",
+    "Двери обязаны ссылаться друг на друга через paired_door_id и иметь согласованные state, door_type и lock_id.",
+    "Дверь не может вести в пустоту, за границу сетки, в несуществующую комнату или в комнату, не являющуюся соседом по стороне.",
+    "Степень комнаты не может превышать max_degree; по умолчанию максимум равен 4.",
+    "Рёбра критического пути создаются первыми, помечаются critical_path = true и никогда не получают состояние locked, paid или random.",
+    "Рёбра веток создаются после критического пути и могут быть кандидатами на замок только при наличии достижимого ключа.",
+    "Петли разрешены только между комнатами NORMAL одинаковой BFS-глубины, не являющимися специальными и не имеющими уже ребра.",
+    "Петля запрещена, если она затрагивает лист, специальную комнату, повышает степень выше max_degree или уменьшает глубину BOSS.",
+    "Петля не может создавать новый более короткий путь от START к BOSS; проверка выполняется повторным BFS после добавления.",
+    "Специальные комнаты SHOP, TREASURE, BOSS и опциональные специальные комнаты не могут иметь рёбер друг с другом.",
+    "Ребро, ведущее к специальной комнате, является единственным ребром этой комнаты.",
+    "Запертое ребро обязано находиться на необязательной ветке; его ключ размещается на стороне, достижимой от START без пересечения этого замка.",
+    "Замок не может быть добавлен, если после него mandatory-комната становится недостижимой или если ключ не найден в допустимой области.",
+    "Удаление ребра при ремонте запрещено, если оно входит в критический путь или нарушает связность обязательных комнат.",
+    "Все рёбра и двери сериализуются с стабильными id, производными от seed и координат, чтобы graph_hash был воспроизводим."
+  ],
+  "special_room_rules": {
+    "treasure": [
+      "Ровно одна TREASURE на каждом этаже.",
+      "Лист с одной дверью, вне критического пути.",
+      "Не соединяется и не соседствует с SHOP, BOSS и другими специальными комнатами.",
+      "Содержит сундук или гарантированную ценную награду.",
+      "Дверь может быть заперта только при ключе, достижимом до замка.",
+      "Слабая охрана не блокирует сундук и не мешает его получить.",
+      "Награда не является обязательной для прохождения этажа."
+    ],
+    "shop": [
+      "Ровно одна SHOP на каждом этаже.",
+      "Лист с одной дверью, вне критического пути.",
+      "Размещается на короткой ветке вблизи START или на ранней глубине.",
+      "Не соединяется и не соседствует с TREASURE, BOSS и другими специальными комнатами.",
+      "Содержит торговца и минимум один товар.",
+      "Платный вход допустим только на необязательной ветке.",
+      "Товары не открывают критический путь и не ломают инварианты этажа."
+    ],
+    "boss": [
+      "Ровно одна BOSS на каждом этаже.",
+      "Лист с одной дверью и максимальной BFS-глубиной от START.",
+      "Не соединяется и не соседствует с SHOP, TREASURE и опциональными специальными комнатами.",
+      "Не может быть смежным со START, если allow_start_near_boss = false.",
+      "Содержит одного босса этажа и арену без обязательных непроходимых зон.",
+      "После победы открывается детерминированный переход на следующий этаж.",
+      "Выход на следующий этаж не считается дополнительной дверью комнаты."
+    ],
+    "pairwise_rules": [
+      "SHOP, TREASURE и BOSS попарно не соединяются рёбрами.",
+      "Опциональные специальные комнаты не соединяются друг с другом.",
+      "Все специальные комнаты имеют ровно одну дверь и степень 1.",
+      "Специальная комната не может быть транзитной для другой комнаты.",
+      "Обязательные специальные комнаты размещаются до опциональных.",
+      "При нехватке подходящих листьев создаётся дополнительная короткая ветка, а не нарушается правило одной двери."
+    ],
+    "locks_and_keys": [
+      "Замки разрешены только на необязательных ветках и только вне критического пути.",
+      "Ключ размещается в комнате, достижимой от START без пересечения запираемого замка.",
+      "Ключ не может находиться за собственным замком или в области, открываемой этим же ключом.",
+      "Ключи не размещаются в BOSS, SHOP и TREASURE.",
+      "Один замок открывается ровно одним ключом с совпадающим lock_id.",
+      "Если валидная позиция для ключа отсутствует, замок не создаётся.",
+      "Количество замков не превышает max_locks_per_floor для этажа.",
+      "Все связи ключ-замок проверяются BFS до и после добавления замка."
+    ]
+  },
+  "difficulty_assignment_rules": [
+    "Бюджет сложности назначается после финального формирования графа, размещения специальных комнат, петель и замков.",
+    "Ступень этажа задаётся STEP = [1.0, 1.6, 2.3] для этажей 1, 2 и 3; значения не интерполируются.",
+    "Базовая формула комнаты: room_budget = floor(30 * STEP[floor_index - 1] * role_weight * type_modifier * depth_factor).",
+    "depth_factor = clamp(0.9 + 0.04 * depth, 0.9, 1.1), где depth — BFS-глубина комнаты от START.",
+    "START и SHOP всегда получают difficulty_budget = 0.",
+    "BOSS обязан иметь максимальный difficulty_budget на этаже; при нарушении бюджеты NORMAL детерминированно уменьшаются, а не бюджет BOSS.",
+    "Суммарный боевой бюджет всех комнат проверяется в пределах ±10% от floor_budget этапа; при выходе за допуск выполняется детерминированная ребалансировка NORMAL.",
+    "Замки, ключи и двери не увеличивают difficulty_budget напрямую.",
+    "Округление всегда вниз; для комнат с врагами минимальный бюджет равен 1.",
+    "Бюджет не зависит от текущего здоровья игрока, инвентаря или времени прохождения."
+  ],
+  "failure_cases": [
+    "Недостаточно свободных клеток макросетки для целевого числа комнат или целевой глубины BOSS.",
+    "Критический путь упёрся в тупик, замкнулся или не достиг целевой глубины за отведённые попытки.",
+    "Длина критического пути меньше critical_path_min_rooms или больше critical_path_max_rooms.",
+    "BOSS оказался не самой удалённой комнатой из-за слишком длинной ветки или неправильной петли.",
+    "START и BOSS оказались смежными или ближе min_boss_grid_distance при allow_start_near_boss = false.",
+    "TREASURE попала на критический путь или стала обязательным транзитом.",
+    "SHOP оказался на критическом пути, слишком далеко от START или соединён с TREASURE/BOSS.",
+    "SHOP, TREASURE или BOSS получили более одной двери или перестали быть листом.",
+    "Две специальные комнаты соединены ребром или физически смежны там, где это запрещено.",
+    "Опциональных специальных комнат больше лимита этажа.",
+    "Не хватило свободных листьев для обязательных специальных комнат.",
+    "Ветка выросла до глубины BOSS или глубже, из-за чего BOSS перестал быть максимально удалённым.",
+    "Петля соединила специальную комнату, лист или вершину со степенью max_degree.",
+    "Петля сократила путь к BOSS или изменила критический путь.",
+    "Дверь создана без кардинального соседства, в пустоту, за границу сетки или в несуществующую комнату.",
+    "У комнаты A дверь north, а у соседней комнаты B нет двери south или пара дверей не совпадает по состоянию.",
+    "Появились дубликаты id комнат, дверей, рёбер, ключей, замков или grid_position.",
+    "Степень комнаты превысила max_degree.",
+    "Появилась комната без дверей или изолированный компонент связности.",
+    "Замок оказался на критическом пути или на двери, ведущей к обязательной комнате.",
+    "Ключ оказался за замком, который он открывает, или в области, открываемой этим же ключом.",
+    "Ключ не найден в достижимой области до замка, но замок всё равно создан.",
+    "Платный или случайный вход оказался на критическом пути.",
+    "Секретная дверь стала единственным проходом к обязательной комнате.",
+    "BOSS недостижим из START или START недостижим из BOSS.",
+    "Специальная комната стала транзитной или обязательной для обхода.",
+    "Бюджет сложности превышен, BOSS не имеет максимального бюджета или суммарный бюджет вышел за допуск.",
+    "Враг, ловушка или предмет заблокировали единственный проход или дверной проём.",
+    "Использован глобальный random, время, порядок обхода словаря или иная недетерминированная зависимость.",
+    "Порядок кандидатов не стабилизирован, из-за чего одинаковый seed даёт разные результаты.",
+    "Ремонт изменил критический путь, нарушил специальные комнаты или не завершился за ограниченное число итераций.",
+    "Резервный этаж не прошёл полную валидацию или не соответствует floor_index.",
+    "Сериализация включила время выполнения, отладочные данные или нестабильный порядок ключей в graph_hash.",
+    "Генерация этажа превысила лимит 50 мс по p95 без перехода к резервному этажу.",
+    "AI-модель или внешний источник шаблонов вернул невалидный контент, который не был отфильтрован валидатором."
+  ],
+  "tunable_parameters": {
+    "macro_grid_width": {
+      "default": 9,
+      "min": 7,
+      "max": 15,
+      "description": "Ширина макросетки комнат."
+    },
+    "macro_grid_height": {
+      "default": 7,
+      "min": 5,
+      "max": 15,
+      "description": "Высота макросетки комнат."
+    },
+    "room_count_targets": {
+      "default": [
+        10,
+        14,
+        18
+      ],
+      "description": "Целевое число комнат по этажам; ограничивается min_rooms = 9 и max_rooms = 20."
+    },
+    "boss_depth_targets": {
+      "default": [
+        5,
+        6,
+        8
+      ],
+      "description": "Целевая глубина BOSS в рёбрах от START по этажам."
+    },
+    "critical_path_min_rooms": {
+      "default": 5,
+      "description": "Минимальная длина критического пути в комнатах."
+    },
+    "critical_path_max_rooms": {
+      "default": 10,
+      "description": "Максимальная длина критического пути в комнатах."
+    },
+    "loop_chance": {
+      "default": 0.15,
+      "min": 0.0,
+      "max": 0.35,
+      "description": "Вероятность добавить допустимую петлю."
+    },
+    "branch_chance": {
+      "default": 0.65,
+      "min": 0.0,
+      "max": 1.0,
+      "description": "Вероятность создать ответвление от подходящей комнаты."
+    },
+    "branch_max_length": {
+      "default": 3,
+      "min": 1,
+      "max": 5,
+      "description": "Максимальная длина одной ветки."
+    },
+    "optional_special_chance": {
+      "default": 0.35,
+      "min": 0.0,
+      "max": 1.0,
+      "description": "Шанс занять свободный лист опциональной специальной комнатой."
+    },
+    "optional_special_caps": {
+      "default": [
+        2,
+        3,
+        3
+      ],
+      "description": "Максимум опциональных специальных комнат по этажам."
+    },
+    "lock_chance": {
+      "default": 0.2,
+      "min": 0.0,
+      "max": 0.6,
+      "description": "Шанс запереть допустимую необязательную ветку."
+    },
+    "max_locks_per_floor": {
+      "default": [
+        1,
+        2,
+        2
+      ],
+      "description": "Максимум замков по этажам."
+    },
+    "max_degree": {
+      "default": 4,
+      "min": 1,
+      "max": 4,
+      "description": "Максимальная степень комнаты."
+    },
+    "max_attempts": {
+      "default": 5,
+      "min": 1,
+      "max": 20,
+      "description": "Число попыток до резервного этажа."
+    },
+    "min_boss_grid_distance": {
+      "default": 4,
+      "min": 1,
+      "max": 20,
+      "description": "Минимальное манхэттенское расстояние START–BOSS."
+    },
+    "start_clearance": {
+      "default": 1,
+      "min": 0,
+      "max": 3,
+      "description": "Запрет размещать комнаты пути слишком близко к START, кроме соседней по пути."
+    },
+    "shop_max_depth": {
+      "default": 3,
+      "min": 1,
+      "max": 5,
+      "description": "Максимальная глубина SHOP от START."
+    },
+    "treasure_depth_range": {
+      "default": [
+        2,
+        5
+      ],
+      "description": "Предпочтительный диапазон глубины TREASURE."
+    },
+    "special_clearance": {
+      "default": 1,
+      "min": 1,
+      "max": 2,
+      "description": "Запрет кардинальной смежности между специальными комнатами."
+    },
+    "max_loops_per_floor": {
+      "default": 2,
+      "min": 0,
+      "max": 4,
+      "description": "Жёсткий предел числа петель после применения loop_chance."
+    },
+    "fallback_floor_ids": {
+      "default": [
+        "fallback_floor_1",
+        "fallback_floor_2",
+        "fallback_floor_3"
+      ],
+      "description": "Валидированные резервные этажи по номерам этажей."
+    }
+  }
+}

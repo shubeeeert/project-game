@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://bfk7sodyaman"]
+
+[ext_resource type="Script" uid="uid://b5xthvp75yawa" path="res://scripts/ui.gd" id="1_nt7q6"]
+[ext_resource type="Script" uid="uid://bhk6t53agoc45" path="res://scripts/minimap.gd" id="2_x4jx1"]
+[ext_resource type="Script" uid="uid://ggoej84l5b5" path="res://scripts/skill_bar.gd" id="3_yev5y"]
+[ext_resource type="Script" uid="uid://d3msgjn1f0c2l" path="res://scripts/death_screen.gd" id="4_death"]
+[ext_resource type="Script" path="res://scripts/pause_menu.gd" id="5_pause"]
+
+[node name="UI" type="CanvasLayer" unique_id=868192531]
+script = ExtResource("1_nt7q6")
+
+[node name="TopLeftPanel" type="Control" parent="." unique_id=1961989615]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TopLeftPanel" unique_id=1988647015]
+layout_mode = 0
+theme_override_constants/separation = 5
+
+[node name="HealthBar" type="Control" parent="TopLeftPanel/VBoxContainer" unique_id=557599335]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+
+[node name="BackGround" type="ColorRect" parent="TopLeftPanel/VBoxContainer/HealthBar" unique_id=165260791]
+layout_mode = 0
+offset_right = 206.0
+offset_bottom = 25.0
+color = Color(0.27515873, 3.1585805e-07, 7.219613e-08, 1)
+
+[node name="Fill" type="ColorRect" parent="TopLeftPanel/VBoxContainer/HealthBar" unique_id=1296969062]
+layout_mode = 0
+offset_right = 206.0
+offset_bottom = 25.0
+color = Color(1, 0, 0, 1)
+
+[node name="Label" type="Label" parent="TopLeftPanel/VBoxContainer/HealthBar" unique_id=656405138]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "100/100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="XPBar" type="Control" parent="TopLeftPanel/VBoxContainer" unique_id=666489738]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+
+[node name="BackGround" type="ColorRect" parent="TopLeftPanel/VBoxContainer/XPBar" unique_id=1315414699]
+layout_mode = 0
+offset_right = 206.0
+offset_bottom = 24.0
+color = Color(0.06898186, 0.033184156, 0.3940703, 1)
+
+[node name="Fill" type="ColorRect" parent="TopLeftPanel/VBoxContainer/XPBar" unique_id=655251028]
+layout_mode = 0
+offset_right = 206.0
+offset_bottom = 24.0
+color = Color(0, 0.533556, 0.9757679, 1)
+
+[node name="Label" type="Label" parent="TopLeftPanel/VBoxContainer/XPBar" unique_id=174703862]
+layout_mode = 0
+offset_right = 41.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "LVL 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MinimapContainer" type="Control" parent="." unique_id=1939068118]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+
+[node name="Minimap" type="Control" parent="MinimapContainer" unique_id=1838452486]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_x4jx1")
+
+[node name="SkillBar" type="Control" parent="." unique_id=1137017321]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("3_yev5y")
+
+[node name="DeathScreen" type="CanvasLayer" parent="." unique_id=1948271630]
+script = ExtResource("4_death")
+
+[node name="PauseMenu" type="CanvasLayer" parent="." unique_id=1948271631]
+layer = 40
+script = ExtResource("5_pause")

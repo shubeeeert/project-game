@@ -1,0 +1,113 @@
+{
+  "duration_ms": 25170.098,
+  "executed": 15,
+  "failed": 0,
+  "status": "PASS",
+  "tests": [
+    {
+      "checks": 6770,
+      "duration_ms": 2304.416,
+      "failures": [],
+      "name": "test_adapter",
+      "passed": true
+    },
+    {
+      "checks": 3850,
+      "duration_ms": 826.73,
+      "failures": [],
+      "name": "test_ai_models",
+      "passed": true
+    },
+    {
+      "checks": 59,
+      "duration_ms": 2.936,
+      "failures": [],
+      "name": "test_config",
+      "passed": true
+    },
+    {
+      "checks": 107,
+      "duration_ms": 3057.297,
+      "failures": [],
+      "name": "test_determinism",
+      "passed": true
+    },
+    {
+      "checks": 56,
+      "duration_ms": 2.551,
+      "failures": [],
+      "name": "test_enemy_navigation",
+      "passed": true
+    },
+    {
+      "checks": 5505,
+      "duration_ms": 627.474,
+      "failures": [],
+      "name": "test_entities",
+      "passed": true
+    },
+    {
+      "checks": 1653,
+      "duration_ms": 615.077,
+      "failures": [],
+      "name": "test_graph_doors_locks",
+      "passed": true
+    },
+    {
+      "checks": 17931,
+      "duration_ms": 780.781,
+      "failures": [],
+      "name": "test_interiors",
+      "passed": true
+    },
+    {
+      "checks": 1283,
+      "duration_ms": 2538.477,
+      "failures": [],
+      "name": "test_items_stats",
+      "passed": true
+    },
+    {
+      "checks": 90,
+      "duration_ms": 2690.052,
+      "failures": [],
+      "name": "test_new_enemies",
+      "passed": true
+    },
+    {
+      "checks": 12,
+      "duration_ms": 8513.426,
+      "failures": [],
+      "name": "test_performance",
+      "passed": true
+    },
+    {
+      "checks": 17,
+      "duration_ms": 3.808,
+      "failures": [],
+      "name": "test_rng",
+      "passed": true
+    },
+    {
+      "checks": 8790,
+      "duration_ms": 2762.379,
+      "failures": [],
+      "name": "test_room_adjacency",
+      "passed": true
+    },
+    {
+      "checks": 16,
+      "duration_ms": 69.278,
+      "failures": [],
+      "name": "test_serialization",
+      "passed": true
+    },
+    {
+      "checks": 38,
+      "duration_ms": 0.338,
+      "failures": [],
+      "name": "test_skills",
+      "passed": true
+    }
+  ]
+}

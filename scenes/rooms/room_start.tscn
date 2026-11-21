@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://b60l5s0v078cc"]
+
+[ext_resource type="Script" uid="uid://dgsyp4qpt4mfm" path="res://scripts/room.gd" id="1_xaijw"]
+
+[node name="RoomStart" type="Node2D" unique_id=1086717442]
+script = ExtResource("1_xaijw")
+
+[node name="Floor" type="ColorRect" parent="." unique_id=255673067]
+z_index = -20
+offset_left = -107.0
+offset_top = -87.0
+offset_right = 107.0
+offset_bottom = 73.0
+
+[node name="EnemySpawnPoints" type="Node2D" parent="." unique_id=1161985850]
+
+[node name="ObstacleContainer" type="Node2D" parent="." unique_id=1688095683]

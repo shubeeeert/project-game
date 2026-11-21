@@ -1,0 +1,101 @@
+{
+  "version": "1.0",
+  "max_attempts": 3,
+  "warnings_max": 5,
+  "min_rooms": 9,
+  "max_rooms": 20,
+  "max_generation_ms": 50.0,
+  "validate_ms": 10.0,
+  "repair_ms": 20.0,
+  "safe_zone_radius": 3,
+  "allow_loops": true,
+  "allow_locked_doors": true,
+  "algorithms": {
+    "macro": "ai_structure",
+    "interior": "ai_tile_model",
+    "entities": "ai_placement"
+  },
+  "budget": {
+    "base": 30.0,
+    "hard_limit": 60,
+    "depth_growth": 0.05,
+    "enemy_share": 0.65,
+    "trap_share": 0.2,
+    "reward_share": 0.15,
+    "hard_mode": false
+  },
+  "role_weights": {
+    "START": 0.0,
+    "BOSS": 1.5,
+    "NORMAL": 1.0,
+    "TREASURE": 1.1,
+    "SHOP": 0.8
+  },
+  "room_type_modifiers": {
+    "START": 0.0,
+    "BOSS": 1.6,
+    "NORMAL": 1.0,
+    "TREASURE": 0.7,
+    "SHOP": 0.3
+  },
+  "special_limits": {
+    "TREASURE": 1,
+    "SHOP": 1
+  },
+  "floors": [
+    {
+      "floor_index": 1,
+      "target_rooms": 10,
+      "min_rooms": 9,
+      "max_rooms": 13,
+      "spine_length": 5,
+      "boss_depth": 5,
+      "difficulty": 1.0,
+      "max_locks": 1,
+      "elite_chance": 0.08,
+      "trap_density": 0.1,
+      "allow_loops": true,
+      "allow_locked_doors": true,
+      "special_room_weights": {
+        "TREASURE": 1.0,
+        "SHOP": 0.9
+      }
+    },
+    {
+      "floor_index": 2,
+      "target_rooms": 14,
+      "min_rooms": 11,
+      "max_rooms": 17,
+      "spine_length": 6,
+      "boss_depth": 6,
+      "difficulty": 1.6,
+      "max_locks": 2,
+      "elite_chance": 0.14,
+      "trap_density": 0.16,
+      "allow_loops": true,
+      "allow_locked_doors": true,
+      "special_room_weights": {
+        "TREASURE": 1.0,
+        "SHOP": 0.9
+      }
+    },
+    {
+      "floor_index": 3,
+      "target_rooms": 18,
+      "min_rooms": 14,
+      "max_rooms": 20,
+      "spine_length": 8,
+      "boss_depth": 8,
+      "difficulty": 2.3,
+      "max_locks": 2,
+      "elite_chance": 0.2,
+      "trap_density": 0.22,
+      "allow_loops": true,
+      "allow_locked_doors": true,
+      "special_room_weights": {
+        "TREASURE": 1.0,
+        "SHOP": 0.9
+      }
+    }
+  ]
+}

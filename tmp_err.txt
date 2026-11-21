@@ -1,0 +1,8 @@
+WARNING: res://scenes/rooms/room_normal.tscn:4 - ext_resource, invalid UID: uid://dgt8g1fru2ggn - using text path instead: res://scenes/enemies/Enemy.tscn
+   at: load (scene/resources/resource_format_text.cpp:501)
+WARNING: res://scenes/rooms/room_boss.tscn:4 - ext_resource, invalid UID: uid://dgt8g1fru2ggn - using text path instead: res://scenes/enemies/Enemy.tscn
+   at: load (scene/resources/resource_format_text.cpp:501)
+ERROR: Cannot reload script while instances exist.
+   at: reload (modules/gdscript/gdscript.cpp:754)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/tools/parse_check.gd:36)

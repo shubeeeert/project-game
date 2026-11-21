@@ -1,0 +1,205 @@
+{
+  "stage": 9,
+  "title": "Тесты",
+  "runner": {
+    "file": "res://tests/test_runner.gd",
+    "command": "godot --headless --path E:\\ill-try --script res://tests/test_runner.gd",
+    "filter_command": "godot --headless --path E:\\ill-try --script res://tests/test_runner.gd -- --test=locks",
+    "report": "res://tests/last_report.json",
+    "exit_code": "0 — все тесты прошли, 1 — есть провалы",
+    "discovery": "Все res://tests/cases/test_*.gd запускаются по имени; пустой тест без проверок считается проваленным."
+  },
+  "framework": [
+    {
+      "file": "res://tests/framework/test_case.gd",
+      "role": "Базовый класс: execute(), assert_* (true/false/eq/ne/gt/ge/lt/le/in/not_empty/has_key), fail().",
+      "notes": "Каждый тест обязан выполнить хотя бы одну проверку; провалы складываются в отчёт и push_error."
+    },
+    {
+      "file": "res://tests/framework/fixtures.gd",
+      "role": "Конфиг, баланс, генератор и выборка этажей; данные берутся из JSON, а не хардкодятся."
+    }
+  ],
+  "cases": [
+    {
+      "file": "res://tests/cases/test_rng.gd",
+      "checks": 17,
+      "covers": [
+        "воспроизводимость последовательности при одинаковом seed и потоке",
+        "разные seed расходятся",
+        "fork() не зависит от вызовов родителя и от других fork-имён",
+        "next_int/next_float/chance соблюдают диапазоны и границы",
+        "shuffle детерминирован и сохраняет элементы",
+        "weighted_choice: пустой список, нулевой вес, доминирование тяжёлого элемента",
+        "get_state/set_state восстанавливают последовательность",
+        "в коде RNG нет вызовов глобальных randi()/randf()"
+      ]
+    },
+    {
+      "file": "res://tests/cases/test_config.gd",
+      "checks": 23,
+      "covers": [
+        "дефолтная конфигурация валидна",
+        "from_dict({}) даёт валидную конфигурацию",
+        "пустой floors и target_rooms вне min/max отклоняются",
+        "generation_config.json и balance_tables.json загружаются",
+        "room_templates.json загружается",
+        "tuning этажа 1..3 соответствует запрошенному floor_index"
+      ]
+    },
+    {
+      "file": "res://tests/cases/test_graph_doors_locks.gd",
+      "checks": 1569,
+      "covers": [
+        "START и BOSS существуют и уникальны",
+        "все комнаты достижимы от START, BOSS достижим",
+        "критический путь не пуст и содержит START и BOSS",
+        "симметрия дверей и соответствие стороны ребру",
+        "каждое ребро даёт ровно одну пару дверей",
+        "каждый замок имеет ровно один ключ",
+        "замки только на необязательных ветках: не режут BOSS и критический путь",
+        "ключ достижим без прохождения замков и не лежит за собственным замком",
+        "состояние LOCKED и lock_id проставлены обеим дверям"
+      ]
+    },
+    {
+      "file": "res://tests/cases/test_interiors.gd",
+      "checks": 18661,
+      "covers": [
+        "сетка интерьера ровно 7x13",
+        "стены по периметру, кроме дверных клеток",
+        "каждая дверь использует TILE_DOOR или TILE_LOCKED_DOOR",
+        "дверные проёмы и минимум 2 тайла вглубь проходимы",
+        "зоны entrance/combat/reward/hazard существуют",
+        "у комнат с дверями есть entrance-зона",
+        "все пьедесталы достижимы от входов",
+        "центральная арена BOSS свободна от препятствий, шипов и ям"
+      ]
+    },
+    {
+      "file": "res://tests/cases/test_entities.gd",
+      "checks": 4735,
+      "covers": [
+        "id сущностей уникальны в пределах одного этажа",
+        "каждая сущность имеет клетку внутри 13x7",
+        "сущности не стоят на TILE_WALL/TILE_OBSTACLE",
+        "враги не стоят в безопасной зоне входа",
+        "в BOSS ровно один boss",
+        "START пуст",
+        "TREASURE содержит предмет",
+        "SHOP содержит минимум два товара с ценой",
+        "difficulty_spent не превышает budget с допуском 5%"
+      ]
+    },
+    {
+      "file": "res://tests/cases/test_serialization.gd",
+      "checks": 16,
+      "covers": [
+        "минимальная схема сгенерированного этажа валидна",
+        "JSON roundtrip сохраняет структурный хеш, число комнат/рёбер, seed и floor_index",
+        "pretty JSON не короче compact",
+        "двойной roundtrip стабилен",
+        "невалидный JSON и non-object JSON дают пустой этаж",
+        "пустой этаж проваливает validate_minimal",
+        "float-поля seed/floor_index нормализуются до int"
+      ]
+    },
+    {
+      "file": "res://tests/cases/test_determinism.gd",
+      "checks": 107,
+      "covers": [
+        "одинаковый seed + floor дают одинаковый структурный хеш и размер",
+        "порядок генерации не влияет на результат",
+        "свежий генератор воспроизводит этаж",
+        "разные seed дают разные этажи",
+        "100 seed этажа 1 дают 100 различных этажей и PASS",
+        "JSON roundtrip сохраняет структурный хеш"
+      ]
+    },
+    {
+      "file": "res://tests/cases/test_performance.gd",
+      "checks": 12,
+      "covers": [
+        "100 seed на каждый из трёх этажей",
+        "p95 генерации ниже max_generation_ms (50 мс) для каждого этажа",
+        "все этажи проходят валидацию (validator_status=PASS)",
+        "нет повторных попыток (attempt=0)",
+        "нет fallback-этажей"
+      ],
+      "measured": {
+        "floor_1": {
+          "mean_ms": 16.72,
+          "p95_ms": 20.91,
+          "max_ms": 23.95
+        },
+        "floor_2": {
+          "mean_ms": 25.09,
+          "p95_ms": 33.81,
+          "max_ms": 37.44
+        },
+        "floor_3": {
+          "mean_ms": 32.64,
+          "p95_ms": 39.55,
+          "max_ms": 42.08
+        }
+      }
+    },
+    {
+      "file": "res://tests/cases/test_adapter.gd",
+      "checks": 4743,
+      "covers": [
+        "to_map_payload отдаёт все доменные комнаты",
+        "map_size покрывает сдвинутый этаж",
+        "starting_room и current_room_pos указывают на START после сдвига",
+        "позиции неотрицательны и лежат внутри map_size",
+        "доменные стороны north/south/west/east дают up/down/left/right",
+        "doors и locked_doors зеркалят доменные двери и состояние LOCKED",
+        "клетки врагов сдвигаются на y+1 и остаются в 13x9",
+        "препятствия соответствуют TILE_OBSTACLE/TILE_SPIKE/TILE_PIT и не выходят за границы",
+        "START -> start, BOSS -> boss, остальные -> normal",
+        "пустой этаж даёт пустой payload и map_size 1x1",
+        "процедурный режим MapGenerator: PASS, floor_plan, start, summary, run-state helpers",
+        "legacy режим MapGenerator детерминирован, создаёт ровно одного босса и согласованные двери",
+        "legacy режим не фабрикует доменный floor_plan"
+      ]
+    }
+  ],
+  "invariants": [
+    "Одинаковый seed + floor_index + config дают структурно одинаковый этаж.",
+    "START и BOSS обязательны; BOSS достижим без замков.",
+    "Двери согласованы попарно; висячих дверей нет.",
+    "Ключ не лежит за собственным замком и достижим от START.",
+    "Спецкомнаты не соединяются друг с другом.",
+    "Сущности не выходят за границы, не стоят на стенах и препятствиях.",
+    "Бюджет сложности не превышается более чем на 5% вне hard mode.",
+    "p95 генерации этажа ниже 50 мс.",
+    "JSON roundtrip не меняет структурный хеш."
+  ],
+  "latest_run": {
+    "status": "PASS",
+    "executed": 9,
+    "failed": 0,
+    "checks_total": 29883,
+    "duration_ms": 14265.19,
+    "finished_at": "2026-11-14",
+    "report_file": "res://tests/last_report.json"
+  },
+  "parse_check": {
+    "file": "res://tests/tools/parse_check.gd",
+    "command": "godot --headless --path E:\\ill-try --script res://tests/tools/parse_check.gd",
+    "result": {
+      "files": 55,
+      "errors": 0,
+      "status": "PASS"
+    },
+    "notes": "Проверяет компиляцию scripts/generation, map_generator.gd, room_grid.gd, tests/framework, tests/cases и test_runner.gd через CACHE_MODE_IGNORE + reload()."
+  },
+  "auxiliary_tools": [
+    "res://tests/tools/bench_seeds.gd — 100 seed × 3 этажа, mean/p95/max, retry/fallback.",
+    "res://tests/tools/balance_stats.gd — статистика баланса, пишет res://tests/balance_stats.json.",
+    "res://tests/tools/debug_failures.gd — 300 первых попыток без блокирующих ошибок.",
+    "res://tests/tools/debug_phases.gd — время фаз macro/struct/populate/validate.",
+    "res://tests/tools/debug_profile4.gd — время на комнату и по валидаторам.",
+    "res://tests/tools/debug_entities2.gd — разбивка времени размещения сущностей."
+  ]
+}

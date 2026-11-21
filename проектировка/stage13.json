@@ -1,0 +1,105 @@
+{
+  "stage": 13,
+  "title": "Интеграция обученных ИИ-моделей для генерации этажей и комнат",
+  "status": "завершено",
+  "summary": "Внедрены три компактные обученные MLP-модели с детерминированным inference на GDScript: structure (структура этажа), tile (низкоразрешённая карта препятствий комнаты 5x3), enemy (размещение врагов). Модели обучаются офлайн на 270 этажах, собранных классическим генератором; во время игры читаются только веса из ai_models.json — без сети и внешнего сервера. Структура этажа предсказывает число комнат/длину spine/циклы, после чего граф строится существующим spine_branch_generator с сохранением START/BOSS/замков/валидации. Интерьер разворачивает карту плотности в сетку 13x7 с жёстким восстановлением проходимости: дверные проёмы свободны, все внутренние зоны дверей связаны BFS, пьедесталы достижимы. Враги оцениваются моделью, но бюджет/безопасная зона/достижимость остаются в исходном EntityPlacer.",
+  "models": {
+    "training_data": "data/generation/training_floors.json (270 этажей, экспорт tools/export_training_data.gd)",
+    "training_script": "tools/train_ai_models.py (numpy, офлайн)",
+    "weights": "data/generation/ai_models.json (11601 bytes, version 3)",
+    "structure": {
+      "architecture": "6->16->16->3 sigmoid",
+      "outputs": "target_rooms, spine_length, allow_loops"
+    },
+    "tile": {
+      "architecture": "7->16->16->15 sigmoid",
+      "outputs": "карта плотности препятствий 5x3, один вызов на комнату"
+    },
+    "enemy": {
+      "architecture": "8->6->1 sigmoid",
+      "outputs": "вероятность врага для клетки"
+    }
+  },
+  "files": [
+    "scripts/generation/ai/ai_model_runtime.gd",
+    "scripts/generation/ai/ai_structure_generator.gd",
+    "scripts/generation/ai/ai_interior_generator.gd",
+    "scripts/generation/ai/ai_cell_picker.gd",
+    "scripts/generation/ai/ai_entity_placer.gd",
+    "scripts/generation/generator_factory.gd",
+    "scripts/generation/floor_generator.gd",
+    "scripts/generation/entities/entity_placer.gd",
+    "scripts/generation/serialization/graph_hasher.gd",
+    "scripts/generation/core/generation_config.gd",
+    "data/generation/generation_config.json",
+    "tests/cases/test_ai_models.gd",
+    "tools/export_training_data.gd",
+    "tools/train_ai_models.py"
+  ],
+  "tests": {
+    "commands": {
+      "runner": "godot --headless --path E:\\ill-try --script res://tests/test_runner.gd",
+      "parse_check": "godot --headless --path E:\\ill-try --script res://tests/tools/parse_check.gd",
+      "benchmark": "godot --headless --path E:\\ill-try --script res://tests/tools/bench_seeds.gd",
+      "game_smoke": "godot --headless --path E:\\ill-try --script res://tests/tools/game_smoke.gd",
+      "retrain": "python E:\\ill-try\\tools\\train_ai_models.py"
+    },
+    "result": {
+      "status": "PASS",
+      "executed": 10,
+      "failed": 0,
+      "checks_total": 34171,
+      "duration_ms": 19447.4,
+      "parse_files": 71,
+      "parse_errors": 0,
+      "game_smoke": {
+        "checks": 35,
+        "errors": 0
+      },
+      "ai_tests": {
+        "checks": 3803,
+        "failures": 0
+      },
+      "benchmark": {
+        "floor_1": {
+          "mean_ms": 25.61,
+          "p95_ms": 31.09,
+          "max_ms": 32.36
+        },
+        "floor_2": {
+          "mean_ms": 33.81,
+          "p95_ms": 41.62,
+          "max_ms": 43.14
+        },
+        "floor_3": {
+          "mean_ms": 38.44,
+          "p95_ms": 47.85,
+          "max_ms": 49.39
+        },
+        "failures": 0,
+        "fallbacks": 0,
+        "retries": 0
+      }
+    },
+    "coverage": [
+      "загрузка весов и размеры входов/выходов трёх моделей",
+      "детерминизм inference и повторной генерации (structural hash)",
+      "наличие препятствий и врагов",
+      "проходимость: дверные проёмы не перекрыты, все door inner cells связаны BFS",
+      "START/BOSS обязательны, валидация PASS без fallback",
+      "p95 генерации < 50 мс на всех этажах",
+      "совместимость с сериализацией (AI-метаданные исключены из structural hash)"
+    ]
+  },
+  "design_notes": [
+    "Наивный per-cell tile inference не уложился в бюджет (~90 мс, p95 > 200 мс из-за каскада ретраев). Заменён на low-res layout decoder: одна инференция на комнату и детерминированное разворачивание карты 5x3 в сетку 13x7.",
+    "Для соблюдения детерминизма глобальный randi()/randf() не используется; латентный вектор берётся только из переданного RefCounted RNG.",
+    "Жёсткая проверка проходимости не отключается конфигурацией и сохраняет все инварианты дверей/замков за счёт делегирования графа в spine_branch_generator.",
+    "Отказ модели (отсутствие файла весов) приводит к прозрачному fallback на классические алгоритмы без падения."
+  ],
+  "reproduction": [
+    "python E:\\ill-try\\tools\\train_ai_models.py — переобучить веса (опционально)",
+    "godot --headless --path E:\\ill-try --script res://tests/test_runner.gd",
+    "godot --headless --path E:\\ill-try --script res://tests/tools/bench_seeds.gd"
+  ]
+}

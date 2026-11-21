@@ -1,0 +1,560 @@
+{
+  "stage": 11,
+  "title": "Таблицы баланса",
+  "source_files": [
+    "res://data/generation/balance_tables.json",
+    "res://data/generation/generation_config.json",
+    "res://tests/balance_stats.json"
+  ],
+  "method": {
+    "sample": "100 seed на каждый из трёх этажей",
+    "tool": "res://tests/tools/balance_stats.gd",
+    "deterministic": true,
+    "notes": "Эмпирические значения — средние на этаж; они сняты на финальной сборке после оптимизаций и исправления NPC магазина."
+  },
+  "enemy_catalog": [
+    {
+      "id": "crawler",
+      "name": "Crawler",
+      "threat_cost": 3,
+      "kind": "normal",
+      "min_floor": 1,
+      "max_floor": 3,
+      "spawn_weight": 1.0,
+      "tags": [
+        "melee"
+      ]
+    },
+    {
+      "id": "bat",
+      "name": "Bat",
+      "threat_cost": 2,
+      "kind": "fast",
+      "min_floor": 1,
+      "max_floor": 2,
+      "spawn_weight": 1.2,
+      "tags": [
+        "fast",
+        "flyer"
+      ]
+    },
+    {
+      "id": "spitter",
+      "name": "Spitter",
+      "threat_cost": 4,
+      "kind": "normal",
+      "min_floor": 1,
+      "max_floor": 3,
+      "spawn_weight": 0.9,
+      "tags": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "charger",
+      "name": "Charger",
+      "threat_cost": 5,
+      "kind": "fast",
+      "min_floor": 2,
+      "max_floor": 3,
+      "spawn_weight": 0.8,
+      "tags": [
+        "fast",
+        "melee"
+      ]
+    },
+    {
+      "id": "brute",
+      "name": "Brute",
+      "threat_cost": 8,
+      "kind": "elite",
+      "min_floor": 2,
+      "max_floor": 3,
+      "spawn_weight": 0.5,
+      "tags": [
+        "elite",
+        "melee"
+      ]
+    },
+    {
+      "id": "sentinel",
+      "name": "Sentinel",
+      "threat_cost": 10,
+      "kind": "elite",
+      "min_floor": 3,
+      "max_floor": 3,
+      "spawn_weight": 0.4,
+      "tags": [
+        "elite",
+        "ranged"
+      ]
+    },
+    {
+      "id": "miniboss_warden",
+      "name": "Warden",
+      "threat_cost": 16,
+      "min_floor": 2,
+      "max_floor": 3,
+      "spawn_weight": 1.0,
+      "tags": [
+        "elite"
+      ]
+    },
+    {
+      "id": "boss_basement",
+      "name": "Basement Lord",
+      "threat_cost": 30,
+      "kind": "boss",
+      "min_floor": 1,
+      "max_floor": 3,
+      "spawn_weight": 1.0,
+      "tags": [
+        "boss"
+      ]
+    }
+  ],
+  "trap_catalog": [
+    {
+      "id": "spikes_small",
+      "name": "Small Spikes",
+      "hazard_cost": 2,
+      "min_floor": 1,
+      "spawn_weight": 1.0,
+      "tags": [
+        "trap",
+        "ground"
+      ]
+    },
+    {
+      "id": "poison_vent",
+      "name": "Poison Vent",
+      "hazard_cost": 3,
+      "min_floor": 1,
+      "spawn_weight": 0.8,
+      "tags": [
+        "trap",
+        "area"
+      ]
+    },
+    {
+      "id": "pressure_plate_arrow",
+      "name": "Arrow Plate",
+      "hazard_cost": 4,
+      "min_floor": 2,
+      "spawn_weight": 0.8,
+      "tags": [
+        "trap",
+        "ranged"
+      ]
+    },
+    {
+      "id": "flame_jet",
+      "name": "Flame Jet",
+      "hazard_cost": 5,
+      "min_floor": 3,
+      "spawn_weight": 0.6,
+      "tags": [
+        "trap",
+        "fire"
+      ]
+    }
+  ],
+  "item_catalog": [
+    {
+      "id": "common_item",
+      "name": "Common Relic",
+      "rarity": "common",
+      "value": 5,
+      "min_floor": 1,
+      "spawn_weight": 1.0,
+      "kind": "item"
+    },
+    {
+      "id": "uncommon_item",
+      "name": "Uncommon Relic",
+      "rarity": "uncommon",
+      "value": 12,
+      "min_floor": 2,
+      "spawn_weight": 0.8,
+      "kind": "item"
+    },
+    {
+      "id": "rare_item",
+      "name": "Rare Relic",
+      "rarity": "rare",
+      "value": 25,
+      "min_floor": 2,
+      "spawn_weight": 0.5,
+      "kind": "item"
+    },
+    {
+      "id": "small_key",
+      "name": "Small Key",
+      "rarity": "common",
+      "value": 8,
+      "min_floor": 1,
+      "spawn_weight": 1.0,
+      "kind": "key"
+    },
+    {
+      "id": "boss_reward",
+      "name": "Boss Trophy",
+      "rarity": "rare",
+      "value": 40,
+      "min_floor": 1,
+      "spawn_weight": 1.0,
+      "kind": "reward"
+    },
+    {
+      "id": "challenge_reward",
+      "rarity": "uncommon",
+      "value": 30,
+      "min_floor": 1,
+      "spawn_weight": 1.0,
+      "kind": "reward"
+    },
+    {
+      "id": "shop_goods",
+      "name": "Shop Goods",
+      "rarity": "common",
+      "value": 10,
+      "min_floor": 1,
+      "spawn_weight": 1.0,
+      "kind": "shop_good"
+    }
+  ],
+  "budget_profiles": {
+    "easy": {
+      "base": 24.0,
+      "hard_limit": 45,
+      "depth_growth": 0.04,
+      "hard_mode": false
+    },
+    "normal": {
+      "base": 30.0,
+      "hard_limit": 60,
+      "depth_growth": 0.05,
+      "hard_mode": false
+    },
+    "hard": {
+      "base": 38.0,
+      "hard_limit": 72,
+      "depth_growth": 0.07,
+      "hard_mode": true
+    }
+  },
+  "budget_formula": {
+    "text": "floor(base * difficulty * role_weight * room_type_modifier * (1 + depth_growth * depth)), ограничение hard_limit",
+    "room_cap": "SHOP/TREASURE/START дополнительно ограничены 18; BOSS не ниже base * difficulty",
+    "overspend": "вне hard mode допускается перерасход до 5% (cap = total * 1.05)",
+    "roles": {
+      "START": 0.0,
+      "BOSS": 1.5,
+      "NORMAL": 1.0,
+      "TREASURE": 1.1,
+      "SHOP": 0.8
+    },
+    "type_modifiers": {
+      "START": 0.0,
+      "BOSS": 1.6,
+      "NORMAL": 1.0,
+      "TREASURE": 0.7,
+      "SHOP": 0.3
+    }
+  },
+  "floor_tuning": [
+    {
+      "floor_index": 1,
+      "target_rooms": 10,
+      "min_rooms": 9,
+      "max_rooms": 13,
+      "spine_length": 5,
+      "boss_depth": 5,
+      "difficulty": 1.0,
+      "max_locks": 1,
+      "elite_chance": 0.08,
+      "trap_density": 0.1,
+      "max_enemies_per_room": {
+        "NORMAL": 6,
+        "default": 4
+      },
+      "special_room_weights": {
+        "TREASURE": 1.0,
+        "SHOP": 0.9
+      }
+    },
+    {
+      "floor_index": 2,
+      "target_rooms": 14,
+      "min_rooms": 11,
+      "max_rooms": 17,
+      "spine_length": 6,
+      "boss_depth": 6,
+      "difficulty": 1.6,
+      "max_locks": 2,
+      "elite_chance": 0.14,
+      "trap_density": 0.16,
+      "max_enemies_per_room": {
+        "NORMAL": 6,
+        "default": 4
+      },
+      "special_room_weights": {
+        "TREASURE": 1.0,
+        "SHOP": 0.9
+      }
+    },
+    {
+      "floor_index": 3,
+      "target_rooms": 18,
+      "min_rooms": 14,
+      "max_rooms": 20,
+      "spine_length": 8,
+      "boss_depth": 8,
+      "difficulty": 2.3,
+      "max_locks": 2,
+      "elite_chance": 0.2,
+      "trap_density": 0.22,
+      "max_enemies_per_room": {
+        "NORMAL": 6,
+        "default": 4
+      },
+      "special_room_weights": {
+        "TREASURE": 1.0,
+        "SHOP": 0.9
+      }
+    }
+  ],
+  "empirical_means": [
+    {
+      "floor_index": 1,
+      "rooms": 10.0,
+      "critical_path_length": 5.41,
+      "enemies_per_floor": 16.88,
+      "npcs_per_floor": 1.0,
+      "traps_per_floor": 1.9,
+      "items_per_floor": 5.09,
+      "locks_per_floor": 1.0,
+      "keys_per_floor": 1.0,
+      "budget_per_room": 28.07,
+      "spent_per_room": 8.05,
+      "budget_utilization_pct": 28.66,
+      "room_types_per_floor": {
+        "START": 1.0,
+        "NORMAL": 4.91,
+        "TREASURE": 1.0,
+        "SHOP": 1.0,
+        "BOSS": 1.0
+      },
+      "enemy_kinds_per_floor": {
+        "normal": 9.75,
+        "fast": 6.13,
+        "elite": 0.0,
+        "miniboss": 0.0,
+        "boss": 1.0
+      },
+      "enemies_by_id_per_floor": {
+        "crawler": 5.15,
+        "bat": 6.13,
+        "spitter": 4.6,
+        "boss_basement": 1.0
+      },
+      "traps_by_id_per_floor": {
+        "spikes_small": 1.35,
+        "poison_vent": 0.55
+      },
+      "items_by_id_per_floor": {
+        "common_item": 2.03,
+        "shop_goods": 3.0,
+        "challenge_reward": 0.06
+      }
+    },
+    {
+      "floor_index": 2,
+      "rooms": 14.0,
+      "critical_path_length": 6.51,
+      "enemies_per_floor": 28.17,
+      "npcs_per_floor": 1.0,
+      "traps_per_floor": 5.13,
+      "items_per_floor": 6.23,
+      "locks_per_floor": 2.0,
+      "keys_per_floor": 2.0,
+      "budget_per_room": 44.58,
+      "spent_per_room": 11.13,
+      "budget_utilization_pct": 24.96,
+      "room_types_per_floor": {
+        "START": 1.0,
+        "NORMAL": 7.56,
+        "TREASURE": 1.0,
+        "SHOP": 1.0,
+        "BOSS": 1.0
+      },
+      "enemy_kinds_per_floor": {
+        "normal": 11.07,
+        "fast": 11.97,
+        "elite": 3.92,
+        "miniboss": 0.21,
+        "boss": 1.0
+      },
+      "enemies_by_id_per_floor": {
+        "crawler": 5.86,
+        "bat": 7.01,
+        "spitter": 5.21,
+        "charger": 4.96,
+        "brute": 3.92,
+        "miniboss_warden": 0.21,
+        "boss_basement": 1.0
+      },
+      "traps_by_id_per_floor": {
+        "spikes_small": 2.72,
+        "poison_vent": 1.27,
+        "pressure_plate_arrow": 1.14
+      },
+      "items_by_id_per_floor": {
+        "common_item": 0.61,
+        "uncommon_item": 0.35,
+        "rare_item": 1.98,
+        "shop_goods": 3.0,
+        "challenge_reward": 0.29
+      }
+    },
+    {
+      "floor_index": 3,
+      "rooms": 18.0,
+      "critical_path_length": 8.43,
+      "enemies_per_floor": 40.01,
+      "npcs_per_floor": 1.0,
+      "traps_per_floor": 6.47,
+      "items_per_floor": 7.15,
+      "locks_per_floor": 2.0,
+      "keys_per_floor": 2.0,
+      "budget_per_room": 51.75,
+      "spent_per_room": 13.64,
+      "budget_utilization_pct": 26.35,
+      "room_types_per_floor": {
+        "START": 1.0,
+        "NORMAL": 10.44,
+        "TREASURE": 1.0,
+        "SHOP": 1.0,
+        "BOSS": 1.0
+      },
+      "enemy_kinds_per_floor": {
+        "normal": 22.17,
+        "fast": 8.74,
+        "elite": 7.69,
+        "miniboss": 0.41,
+        "boss": 1.0
+      },
+      "enemies_by_id_per_floor": {
+        "crawler": 11.6,
+        "spitter": 10.57,
+        "charger": 8.74,
+        "brute": 4.17,
+        "sentinel": 3.52,
+        "miniboss_warden": 0.41,
+        "boss_basement": 1.0
+      },
+      "traps_by_id_per_floor": {
+        "spikes_small": 3.08,
+        "poison_vent": 1.13,
+        "pressure_plate_arrow": 1.28,
+        "flame_jet": 0.98
+      },
+      "items_by_id_per_floor": {
+        "common_item": 0.89,
+        "uncommon_item": 0.61,
+        "rare_item": 2.0,
+        "shop_goods": 3.0,
+        "challenge_reward": 0.65
+      }
+    }
+  ],
+  "shop_prices": {
+    "formula": "price = value * 2 + floor_index * 2",
+    "examples": [
+      {
+        "floor_index": 1,
+        "goods_value": 10,
+        "price": 22
+      },
+      {
+        "floor_index": 2,
+        "goods_value": 10,
+        "price": 24
+      },
+      {
+        "floor_index": 3,
+        "goods_value": 10,
+        "price": 26
+      }
+    ]
+  },
+  "targets_and_verdicts": [
+    {
+      "metric": "rooms per floor",
+      "target": "10 / 14 / 18",
+      "actual": "10.0 / 14.0 / 18.0",
+      "verdict": "совпадает с target_rooms"
+    },
+    {
+      "metric": "critical path",
+      "target": "растёт с этажом",
+      "actual": "5.41 / 6.51 / 8.43",
+      "verdict": "рост монотонный"
+    },
+    {
+      "metric": "enemies per floor",
+      "target": "растёт примерно линейно",
+      "actual": "16.9 / 28.2 / 40.0",
+      "verdict": "рост 1.7x и 1.4x"
+    },
+    {
+      "metric": "elite share",
+      "target": "растёт с floor_index",
+      "actual": "0% / 13.9% / 19.2%",
+      "verdict": "elite_chance работает"
+    },
+    {
+      "metric": "traps per floor",
+      "target": "растёт с trap_density",
+      "actual": "1.9 / 5.1 / 6.5",
+      "verdict": "рост монотонный"
+    },
+    {
+      "metric": "budget utilization",
+      "target": "25–35% без перерасхода",
+      "actual": "28.7% / 25.0% / 26.4%",
+      "verdict": "в целевом диапазоне"
+    },
+    {
+      "metric": "locks/keys",
+      "target": "1 / 2 / 2",
+      "actual": "1/1, 2/2, 2/2",
+      "verdict": "совпадает с max_locks"
+    },
+    {
+      "metric": "shop NPC",
+      "target": "1 на этаж",
+      "actual": "1.0 / 1.0 / 1.0",
+      "verdict": "гарантирован"
+    },
+    {
+      "metric": "shop goods",
+      "target": "3 предложения",
+      "actual": "3.0 / 3.0 / 3.0",
+      "verdict": "стабильно"
+    },
+    {
+      "metric": "retry/fallback",
+      "target": "0",
+      "actual": "0 / 0",
+      "verdict": "первая попытка всегда успешна"
+    }
+  ],
+  "balance_notes": [
+    "Бюджет расходуется примерно на четверть: это осознанный запас под будущие механики (элитные модификаторы, охрана наград, события).",
+    "Основной прирост сложности идёт от количества комнат и врагов, а не от повышения цен: threat_cost остаётся стабильным между этажами.",
+    "Ключи и замки не влияют на бюджет: они структурные, а не боевые.",
+    "TREASURE/SHOP ограничены бюджетом 18, поэтому не превращаются в боевые комнаты.",
+    "BOSS всегда получает арену и оплачивается принудительно (_force_spend), даже если бюджет меньше стоимости босса."
+  ]
+}

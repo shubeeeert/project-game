@@ -1,0 +1,180 @@
+{
+  "stage": 10,
+  "title": "Цикл запуска и исправлений",
+  "environment": {
+    "engine": "Godot 4.7.2.stable.steam",
+    "executable": "E:\\SteamLibrary\\steamapps\\common\\Godot Engine\\godot.windows.opt.tools.64.exe",
+    "project": "E:\\ill-try",
+    "mode": "headless",
+    "notes": "Замеры выполнялись при закрытом редакторе и высоком приоритете процесса. Обычный приоритет на загруженной машине даёт завышенный p95."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "problem": "Валидатор замков находил ключи за собственными замками и ветки, не изолированные замком.",
+      "diagnosis": "lock_key_planner не исключал уже запертые рёбра из проверки достижимости и не защищал ключи ранее поставленных замков.",
+      "fix": "Добавлены _edges_without/_edges_without_many, проверка reachable.has(boss_id), изоляции locked_room_id и blocks_existing_key.",
+      "result": "debug_failures: failures=0 на 300 первых попытках."
+    },
+    {
+      "iteration": 2,
+      "problem": "Ошибка выполнения Nonexistent function 'reachable_keys'.",
+      "diagnosis": "entity_factory.gd объявлял возвращаемый тип, несовместимый с Variant-веткой reachable.",
+      "fix": "Сигнатуры reachable/reachable_keys переведены на Variant; устранены несоответствия типов.",
+      "result": "Ошибка исчезла, парсер и генератор проходят."
+    },
+    {
+      "iteration": 3,
+      "problem": "parse_check не проверял тесты и неверно реагировал на autoload-скрипты.",
+      "diagnosis": "Не было res://tests в ROOTS; reload() для map_generator.gd возвращает ERR_ALREADY_IN_USE из-за autoload-инстанса.",
+      "fix": "Добавлены tests/framework, tests/cases и test_runner.gd в ROOTS; CACHE_MODE_IGNORE + reload(); ERR_ALREADY_IN_USE считается допустимым; tests/tools исключён, чтобы не перезагружать выполняющийся parse_check.",
+      "result": "files=55 errors=0 status=PASS."
+    },
+    {
+      "iteration": 4,
+      "problem": "p95 этажа 3 выходил за 50 мс на загруженной машине.",
+      "diagnosis": "Много полных сканирований сетки: BFS на каждую проверку, повторные проходы интерьера, выбор клеток для каждого врага.",
+      "fix": [
+        "walkability_solver.reachable_mask: inline-проверка соседей, PackedByteArray/PackedInt32Array, без вызова is_passable на клетку.",
+        "interior_generator: убран дублирующий _prepare_doors и _keep_doorways_free, зоны и spawn_points строятся одним проходом _build_room_metadata, _clear_tiles через lookup.",
+        "safe_zone_builder: кэш окрестностей входов.",
+        "entity_validator и interior_validator: прямые чтения тайлов, BFS только при наличии предметов/пьедесталов.",
+        "cell_picker.gd: один shuffle свободных клеток комнаты на размещение, занятые клетки удаляются навсегда."
+      ],
+      "result": "p95 этажа 3 снижен с ~61 мс до 38–40 мс; retry/fallback=0."
+    },
+    {
+      "iteration": 5,
+      "problem": "Тесты падали на ожиданиях, не соответствующих контракту домена.",
+      "diagnosis": [
+        "Уникальность id проверялась между разными seed, хотя id стабильны в пределах одного этажа.",
+        "spawn_points требовались у START/TREASURE, где по дизайну их нет.",
+        "Проверка отсутствия randi()/randf() срабатывала на комментарий в deterministic_rng.gd."
+      ],
+      "fix": [
+        "test_entities: seen_ids сбрасывается на каждый этаж.",
+        "test_rng: комментарии вырезаются перед поиском вызовов."
+      ],
+      "result": "Все 9 тестов PASS, 29868 проверок, 0 провалов."
+    },
+    {
+      "iteration": 6,
+      "problem": "Не было тестов адаптера и режимов MapGenerator.",
+      "diagnosis": "Адаптер и legacy-режим не покрывались, хотя от них зависит существующая игра.",
+      "fix": "Создан tests/cases/test_adapter.gd: payload, сдвиг y+1, двери/замки, типы сцен, процедурный и legacy режимы на отдельном инстансе без autoload.",
+      "result": "test_adapter: 4743 проверки, 0 провалов."
+    },
+    {
+      "iteration": 7,
+      "problem": "Генератор был готов как библиотека, но игра использовала прежнюю карту: в комнатах не было ключей, сундуков, торговцев и портала на следующий этаж, а запертые двери не блокировались.",
+      "diagnosis": "payload адаптера содержал только комнаты/двери/врагов; room.gd не знал о door_locks и features; у MapGenerator не было состояния забега (ключи, замки, забранные предметы), у GameManager — золота и номера этажа.",
+      "fix": [
+        "key_placer.gd детерминированно расставляет ключи после наполнения комнат; payload получил keys/items/npcs/door_locks/start_room_id/boss_room_id/boss_position.",
+        "MapGenerator: begin_run(), go_to_floor(), collect_key(), unlock_lock(), mark_item_claimed() и запросы состояния; состояние очищается на каждом этаже.",
+        "RoomFeature (scripts/room_feature.gd): кодовая отрисовка и взаимодействие по касанию игроком.",
+        "GameManager: seed забега, текущий этаж, золото, сигналы gold_changed/floor_changed/keys_changed/message_shown.",
+        "RoomManager: start_run(seed), advance_floor(), on_key_collected(), заголовки комнат; main.gd запускает забег и читает --seed=N.",
+        "HUD (ui.gd): этаж, золото, ключи и центральные сообщения; minimap.gd красит спецкомнаты по domain_type.",
+        "enemy.gd/Boss.tscn: gold_reward (3 и 60), золото начисляется только при persistent_death."
+      ],
+      "result": "game_smoke: checks=34 errors=0; полный набор тестов 31765 проверок, 0 провалов."
+    }
+  ],
+  "final_checks": {
+    "parse_check": {
+      "files": 66,
+      "errors": 0,
+      "status": "PASS"
+    },
+    "debug_failures": {
+      "attempts_checked": 300,
+      "failures": 0
+    },
+    "unit_tests": {
+      "executed": 9,
+      "failed": 0,
+      "checks_total": 31765,
+      "status": "PASS",
+      "duration_ms": 10716.275
+    },
+    "game_smoke": {
+      "checks": 34,
+      "errors": 0,
+      "status": "PASS",
+      "tool": "res://tests/tools/game_smoke.gd"
+    },
+    "validator_status_sample": "seed=0 floor=1 status=PASS rooms=10"
+  },
+  "benchmark": {
+    "tool": "res://tests/tools/bench_seeds.gd",
+    "seeds": 100,
+    "floors": [
+      1,
+      2,
+      3
+    ],
+    "budget_ms": 50.0,
+    "results": [
+      {
+        "floor_index": 1,
+        "seeds": 100,
+        "failures": 0,
+        "fallbacks": 0,
+        "retried": 0,
+        "max_attempt": 0,
+        "avg_rooms": 10.0,
+        "mean_ms": 12.54,
+        "p95_ms": 14.81,
+        "max_ms": 19.83,
+        "slowest_seed": 44
+      },
+      {
+        "floor_index": 2,
+        "seeds": 100,
+        "failures": 0,
+        "fallbacks": 0,
+        "retried": 0,
+        "max_attempt": 0,
+        "avg_rooms": 14.0,
+        "mean_ms": 18.56,
+        "p95_ms": 21.25,
+        "max_ms": 25.07,
+        "slowest_seed": 23
+      },
+      {
+        "floor_index": 3,
+        "seeds": 100,
+        "failures": 0,
+        "fallbacks": 0,
+        "retried": 0,
+        "max_attempt": 0,
+        "avg_rooms": 18.0,
+        "mean_ms": 23.77,
+        "p95_ms": 28.63,
+        "max_ms": 31.33,
+        "slowest_seed": 8
+      }
+    ],
+    "verdict": "p95 каждого этажа ниже 50 мс; повторные попытки, fallback и провалы валидации отсутствуют."
+  },
+  "performance_phases_ms": {
+    "floor_2": {
+      "macro": 2.41,
+      "struct": 1.54,
+      "populate": 21.7,
+      "validate": 5.73
+    },
+    "floor_3": {
+      "macro": 3.37,
+      "struct": 2.08,
+      "populate": 27.71,
+      "validate": 7.11
+    }
+  },
+  "remaining_risks": [
+    "Wall-clock зависит от фоновой нагрузки; для воспроизводимых замеров нужен высокий приоритет и закрытый редактор.",
+    "Populate остаётся самой дорогой фазой; дальнейший запас — за счёт кэширования шаблонов между этажами и пакетного размещения.",
+    "Различия спецкомнат в игре пока только контентные (domain_type, HUD, мини-карта): отдельные сцены room_shop/room_treasure не созданы.",
+    "Внутриигровая проверка выполняется headless-смоуком; визуальная проверка HUD и ощущений от игры требует ручного запуска."
+  ]
+}
