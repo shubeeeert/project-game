@@ -10,6 +10,9 @@ signal stats_changed
 const BASE_DAMAGE: float = 10.0
 const BASE_ATTACK_SPEED: float = 1.0
 const BASE_MOVE_SPEED: float = 1.0
+## Предел скорости передвижения: предметы складываются, но не могут
+## поднять показатель выше этого значения.
+const MAX_MOVE_SPEED: float = 2.0
 ## Дальность атаки — доля длины одной клетки (64 px).
 const BASE_ATTACK_RANGE: float = 1.00
 
@@ -27,7 +30,7 @@ func add_attack_speed(amount: float) -> void:
 	stats_changed.emit()
 
 func add_move_speed(amount: float) -> void:
-	move_speed = maxf(0.1, move_speed + amount)
+	move_speed = minf(MAX_MOVE_SPEED, maxf(0.1, move_speed + amount))
 	stats_changed.emit()
 
 func add_attack_range(amount: float) -> void:

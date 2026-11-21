@@ -5,7 +5,10 @@ extends RefCounted
 ## монетами; дубликаты разрешены: характеристики с пометкой «складывается»
 ## суммируются, шансы эффектов растут пропорционально количеству копий.
 
-const ITEM_IDS: Array = ["sodom_apple", "gamepad", "electric_guitar", "interlude", "fire"]
+const ITEM_IDS: Array = [
+	"sodom_apple", "gamepad", "electric_guitar", "interlude", "fire",
+	"pill", "sharpener", "hoof",
+]
 
 const DEFINITIONS: Dictionary = {
 	"sodom_apple": {
@@ -28,6 +31,18 @@ const DEFINITIONS: Dictionary = {
 		"name": "Огонь!",
 		"description": "+2 урона (складывается). Атаки имеют шанс 5% (складывается) поджечь врага (25% урона игрока в секунду на протяжении 5 секунд). Стихия: огонь.",
 		"elements": ["fire"],
+	},
+	"pill": {
+		"name": "Таблетка",
+		"description": "Увеличивает макс. здоровье на 50 и немедленно восстанавливает 50 здоровья (складывается).",
+	},
+	"sharpener": {
+		"name": "Точилка",
+		"description": "+5 урона (складывается) и +0.2 скорости атаки (складывается).",
+	},
+	"hoof": {
+		"name": "Копыто",
+		"description": "+0.2 скорости передвижения (складывается, не выше максимума 2.0).",
 	},
 }
 
@@ -65,5 +80,18 @@ static func apply(player: Node, item_id: String) -> void:
 		"fire":
 			if player.stats:
 				player.stats.add_damage(2.0)
+		"pill":
+			var pill_health = player.get_node_or_null("HealthComponent")
+			if pill_health:
+				pill_health.max_health += 50
+				pill_health.heal(50)
+				pill_health.health_changed.emit(pill_health.current_health)
+		"sharpener":
+			if player.stats:
+				player.stats.add_damage(5.0)
+				player.stats.add_attack_speed(0.2)
+		"hoof":
+			if player.stats:
+				player.stats.add_move_speed(0.2)
 		"electric_guitar", "interlude":
 			pass

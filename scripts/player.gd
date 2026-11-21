@@ -50,6 +50,9 @@ var _dash_trail_timer: float = 0.0
 const SWING_TIME: float = 0.18        # Р°РєС‚РёРІРЅР°СЏ С„Р°Р·Р° РІР·РјР°С…Р°
 const SWING_RECOVER: float = 0.14     # возврат меча к следующему взмаху
 const SWING_WINDUP: float = 0.08      # короткий замах перед ударом
+## Базовый показатель скорости атаки остаётся 1.0, но реальная частота
+## взмахов вдвое меньше: длительность фаз делится на ATTACK_SPEED_SCALE.
+const ATTACK_SPEED_SCALE: float = 0.5
 const SWING_ARC: float = 2.36         # ~135 РіСЂР°РґСѓСЃРѕРІ РІ РѕР±Рµ СЃС‚РѕСЂРѕРЅС‹ РѕС‚ РєСѓСЂСЃРѕСЂР°
 ## РЎС‚РѕСЂРѕРЅР° РІР·РјР°С…Р° С‡РµСЂРµРґСѓРµС‚СЃСЏ вЂ” РєР°Рє РІ Isaac.
 var _slash_side: float = 1.0
@@ -299,7 +302,7 @@ func start_attack() -> void:
 	var to_angle: float = base_angle + side * SWING_ARC * 0.5
 	_slash_side = -side
 
-	var speed: float = maxf(stats.attack_speed, 0.1)
+	var speed: float = maxf(stats.attack_speed * ATTACK_SPEED_SCALE, 0.1)
 	var windup: float = SWING_WINDUP / speed
 	var strike: float = SWING_TIME / speed
 
@@ -349,7 +352,7 @@ func _end_swing() -> void:
 	hitbox_shape.disabled = true
 	sword_trail.finish()
 
-	var speed: float = maxf(stats.attack_speed, 0.1)
+	var speed: float = maxf(stats.attack_speed * ATTACK_SPEED_SCALE, 0.1)
 	var recover: float = SWING_RECOVER / speed
 	_recover_tween = create_tween()
 	_recover_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
