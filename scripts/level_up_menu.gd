@@ -2,6 +2,9 @@ extends CanvasLayer
 class_name LevelUpMenu
 
 ## Меню выбора навыка при повышении уровня. Работает, пока игра на паузе.
+## В карточке сразу показан уровень, который получит навык, и изменение
+## характеристик: старое значение мелким серым, новое — крупным зелёным.
+## Изученный навык улучшается одним кликом по карточке, новый требует выбора слота.
 
 signal closed
 
@@ -14,6 +17,11 @@ var _title: Label = null
 var _hint: Label = null
 var _cards: Array = []
 var _slot_buttons: Array = []
+
+const COLOR_UPGRADE: Color = Color(0.35, 1.0, 0.55)
+const COLOR_OLD: Color = Color(0.62, 0.70, 0.82)
+const COLOR_TITLE: Color = Color(1.0, 0.88, 0.42)
+const COLOR_BODY: Color = Color(0.80, 0.86, 0.94)
 
 
 func _ready() -> void:
@@ -54,14 +62,14 @@ func _build() -> void:
 	panel.add_child(margin)
 
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 12)
+	layout.add_theme_constant_override("separation", 10)
 	margin.add_child(layout)
 
-	_title = _make_label("Новый уровень!", 30, Color(1.0, 0.88, 0.42))
+	_title = _make_label("Новый уровень!", 30, COLOR_TITLE)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	layout.add_child(_title)
 
-	_hint = _make_label("Выберите навык, затем кнопку слота.", 16, Color(0.78, 0.9, 1.0))
+	_hint = _make_label("Выберите навык.", 15, Color(0.78, 0.9, 1.0))
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	layout.add_child(_hint)
 
@@ -72,11 +80,26 @@ func _build() -> void:
 	for i in range(3):
 		var button := Button.new()
 		button.name = "SkillChoice_%d" % (i + 1)
-		button.custom_minimum_size = Vector2(0, 116)
+		button.custom_minimum_size = Vector2(0, 140)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.add_theme_font_size_override("font_size", 14)
+		button.text = ""
 		button.pressed.connect(_on_skill_selected.bind(i))
 		cards_column.add_child(button)
+
+		# RichTextLabel внутри кнопки позволяет выделить новое значение крупным
+		# зелёным шрифтом, а старое оставить мелким и приглушённым.
+		var info := RichTextLabel.new()
+		info.name = "Info"
+		info.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		info.offset_left = 12
+		info.offset_top = 8
+		info.offset_right = -12
+		info.offset_bottom = -8
+		info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		info.scroll_active = false
+		info.fit_content = false
+		info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.add_child(info)
 		_cards.append(button)
 
 	var slots_row := HBoxContainer.new()
@@ -93,7 +116,7 @@ func _build() -> void:
 		slots_row.add_child(button)
 		_slot_buttons.append(button)
 
-	var note := _make_label("Навык нельзя заменить: повторный выбор улучшает его.", 13,
+	var note := _make_label("Изучённый навык улучшается одним кликом. Новый — клик по карточке и по слоту.", 12,
 		Color(0.65, 0.72, 0.82))
 	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -132,24 +155,20 @@ func show_offer(manager: SkillManager, user: Node = null) -> void:
 
 
 func _refresh() -> void:
-	_hint.text = "Выберите навык, затем кнопку слота (1, 2 или 3)."
+	if _selected == null:
+		_hint.text = "Новый навык: клик по карточке, затем по слоту. Изучённый: один клик."
+	else:
+		_hint.text = "Нажмите свободный слот, чтобы назначить «%s»." % _selected.skill_name
+
 	for i in range(_cards.size()):
 		var button: Button = _cards[i]
 		if i >= _choices.size():
 			button.visible = false
 			continue
 		button.visible = true
-		var skill: Skill = _choices[i]
-		button.text = "%s  •  Ур. %d\n%s\nУрон: %d   КД: %d с\n%s" % [
-			skill.skill_name,
-			skill.level,
-			Elements.display_list(skill.elements),
-			skill.damage_for(_user),
-			int(skill.cooldown),
-			_wrap_text(skill.description, 50),
-		]
-		button.tooltip_text = skill.description
-		button.modulate = Color.WHITE if _selected == skill else Color(0.72, 0.78, 0.88)
+		_render_card(button, _choices[i])
+		button.tooltip_text = _choices[i].description
+		button.modulate = Color.WHITE if _selected == _choices[i] else Color(0.72, 0.78, 0.88)
 
 	for i in range(_slot_buttons.size()):
 		var button: Button = _slot_buttons[i]
@@ -172,6 +191,94 @@ func _refresh() -> void:
 				i + 1,
 				"улучшение" if duplicate_upgrade else "свободен",
 			]
+
+
+## Заполняет карточку данными навыка с учётом уровня, который будет после выбора.
+func _render_card(button: Button, skill: Skill) -> void:
+	var info: RichTextLabel = button.get_node("Info") as RichTextLabel
+	if info == null:
+		return
+	info.clear()
+
+	var owned: Skill = null
+	if _manager != null:
+		var slot := _manager.slot_for_skill(skill.skill_id)
+		if slot >= 0:
+			owned = _manager.get_skill(slot)
+
+	var preview_level: int = (owned.level + 1) if owned != null else 1
+	var preview: Skill = skill.duplicate() as Skill
+	preview.level = preview_level
+	var new_multiplier: float = preview.damage_multiplier()
+	var new_damage: int = preview.damage_for(_user)
+
+	# Название и уровень, который получит навык.
+	_push_style(info, COLOR_TITLE, 16)
+	info.add_text(skill.skill_name)
+	_pop_style(info)
+	info.add_text("   ")
+	if owned != null:
+		_push_style(info, COLOR_OLD, 12)
+		info.add_text("Ур. %d" % owned.level)
+		_pop_style(info)
+		info.add_text(" → ")
+		_push_style(info, COLOR_UPGRADE, 19)
+		info.add_text("Ур. %d" % preview_level)
+		_pop_style(info)
+	else:
+		_push_style(info, COLOR_UPGRADE, 19)
+		info.add_text("Ур. %d" % preview_level)
+		_pop_style(info)
+		info.add_text("  ")
+		_push_style(info, COLOR_OLD, 12)
+		info.add_text("новый")
+		_pop_style(info)
+	info.newline()
+
+	_push_style(info, Color(0.75, 0.88, 1.0), 12)
+	info.add_text(Elements.display_list(skill.elements))
+	_pop_style(info)
+	info.newline()
+
+	# Характеристика, которая увеличится: старое значение мелкое, новое — крупное и зелёное.
+	if owned != null:
+		var old_multiplier: float = owned.damage_multiplier()
+		var old_damage: int = owned.damage_for(_user)
+		_push_style(info, COLOR_OLD, 12)
+		info.add_text("Урон: %s (%d)" % [_percent(old_multiplier), old_damage])
+		_pop_style(info)
+		info.add_text(" → ")
+		_push_style(info, COLOR_UPGRADE, 19)
+		info.add_text("%s (%d)" % [_percent(new_multiplier), new_damage])
+		_pop_style(info)
+	else:
+		_push_style(info, COLOR_UPGRADE, 19)
+		info.add_text("Урон: %s (%d)" % [_percent(new_multiplier), new_damage])
+		_pop_style(info)
+	info.newline()
+
+	_push_style(info, COLOR_OLD, 12)
+	info.add_text("КД: %d с" % int(skill.cooldown))
+	_pop_style(info)
+	info.newline()
+
+	_push_style(info, COLOR_BODY, 12)
+	info.add_text(_wrap_text(skill.description, 62))
+	_pop_style(info)
+
+
+func _push_style(info: RichTextLabel, color: Color, font_size: int) -> void:
+	info.push_color(color)
+	info.push_font_size(font_size)
+
+
+func _pop_style(info: RichTextLabel) -> void:
+	info.pop()
+	info.pop()
+
+
+func _percent(value: float) -> String:
+	return "%d%%" % int(roundf(value * 100.0))
 
 
 func _wrap_text(text: String, max_chars: int) -> String:
@@ -198,7 +305,17 @@ func _wrap_text(text: String, max_chars: int) -> String:
 func _on_skill_selected(index: int) -> void:
 	if index < 0 or index >= _choices.size():
 		return
-	_selected = _choices[index]
+	var skill: Skill = _choices[index]
+	_selected = skill
+
+	# Уже изученный навык улучшается сразу: второй клик не требуется.
+	if _manager != null:
+		var slot := _manager.slot_for_skill(skill.skill_id)
+		if slot >= 0:
+			if _manager.acquire_skill(skill, slot):
+				close()
+			return
+
 	_refresh()
 
 
