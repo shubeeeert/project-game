@@ -46,6 +46,7 @@ func _on_first_frame() -> void:
 	_check_collision_layers()
 	_check_render_layers()
 	_check_ui_layout()
+	_check_level_up_menu_hotkeys()
 	_check_combat_effects()
 	_check_skills_and_elements()
 	_check_skill_execution()
@@ -290,6 +291,49 @@ func _check_ui_layout() -> void:
 		and is_equal_approx(panel.offset_left, -expected_half_width),
 		"level-up menu must be about one third of the screen width")
 	menu.free()
+
+
+func _check_level_up_menu_hotkeys() -> void:
+	var manager := SkillManager.new()
+	root.add_child(manager)
+	var user := Node2D.new()
+	root.add_child(user)
+	manager.set_skill(0, SkillLibrary.create(SkillLibrary.FIREBALL))
+
+	var menu = load("res://scripts/level_up_menu.gd").new()
+	root.add_child(menu)
+	menu.show_offer(manager, user)
+	var layout = menu.get_node("Panel").get_child(0).get_child(0)
+	var cards = layout.get_child(2)
+	var hint = layout.get_child(1)
+	var target: int = -1
+	for i in range(cards.get_child_count()):
+		var card_text: String = cards.get_child(i).get_child(0).get_parsed_text()
+		if not card_text.contains("Огненный шар"):
+			target = i
+			break
+	_check(target >= 0, "level-up menu must offer a skill that is not owned")
+	menu._on_skill_selected(target)
+
+	var occupied := InputEventAction.new()
+	occupied.action = &"1"
+	occupied.pressed = true
+	menu._input(occupied)
+	_check(menu.visible, "occupied skill hotkey must keep level-up menu open")
+	_check(hint.text.contains("занят"), "occupied skill hotkey must report a busy slot")
+	_check(manager.get_skill_count() == 1, "occupied skill hotkey must not assign a skill")
+
+	var free := InputEventAction.new()
+	free.action = &"2"
+	free.pressed = true
+	menu._input(free)
+	_check(not menu.visible, "free skill hotkey must close level-up menu")
+	_check(not paused, "free skill hotkey must unpause the game")
+	_check(manager.get_skill(1) != null, "free skill hotkey must assign the selected skill")
+
+	menu.free()
+	manager.free()
+	user.free()
 
 
 func _check_combat_effects() -> void:

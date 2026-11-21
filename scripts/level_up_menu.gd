@@ -4,7 +4,8 @@ class_name LevelUpMenu
 ## Меню выбора навыка при повышении уровня. Работает, пока игра на паузе.
 ## В карточке сразу показан уровень, который получит навык, и изменение
 ## характеристик: старое значение мелким серым, новое — крупным зелёным.
-## Изученный навык улучшается одним кликом по карточке, новый требует выбора слота.
+## Изученный навык улучшается одним кликом по карточке. Новый можно назначить
+## кликом по слоту или клавишей 1/2/3; занятый слот показывает предупреждение.
 
 signal closed
 
@@ -22,6 +23,8 @@ const COLOR_UPGRADE: Color = Color(0.35, 1.0, 0.55)
 const COLOR_OLD: Color = Color(0.62, 0.70, 0.82)
 const COLOR_TITLE: Color = Color(1.0, 0.88, 0.42)
 const COLOR_BODY: Color = Color(0.80, 0.86, 0.94)
+const COLOR_HINT: Color = Color(0.78, 0.90, 1.0)
+const COLOR_WARNING: Color = Color(1.0, 0.45, 0.42)
 
 
 func _ready() -> void:
@@ -29,6 +32,25 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	visible = false
 	_build()
+
+
+## Пока меню открыто, цифры 1/2/3 назначают выбранный новый навык так же,
+## как клик по свободному слоту. SkillManager не использует навыки на паузе.
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	var keys: Array = ["1", "2", "3"]
+	if _manager != null and not _manager.skill_keys.is_empty():
+		keys = _manager.skill_keys
+	for i in range(mini(keys.size(), 3)):
+		if not event.is_action_pressed(StringName(keys[i])):
+			continue
+		get_viewport().set_input_as_handled()
+		if _selected == null:
+			_set_hint("Сначала выберите навык, затем нажмите 1, 2 или 3.", COLOR_WARNING)
+			return
+		_assign_selected_to_slot(i)
+		return
 
 
 func _build() -> void:
@@ -69,7 +91,7 @@ func _build() -> void:
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	layout.add_child(_title)
 
-	_hint = _make_label("Выберите навык.", 15, Color(0.78, 0.9, 1.0))
+	_hint = _make_label("Выберите навык.", 15, COLOR_HINT)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	layout.add_child(_hint)
 
@@ -116,7 +138,7 @@ func _build() -> void:
 		slots_row.add_child(button)
 		_slot_buttons.append(button)
 
-	var note := _make_label("Изучённый навык улучшается одним кликом. Новый — клик по карточке и по слоту.", 12,
+	var note := _make_label("Изучённый навык улучшается одним кликом. Новый — клик по карточке, затем слот или клавиша 1, 2, 3.", 12,
 		Color(0.65, 0.72, 0.82))
 	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -141,6 +163,11 @@ func _make_label(text: String, size: int, color: Color) -> Label:
 	return label
 
 
+func _set_hint(text: String, color: Color) -> void:
+	_hint.text = text
+	_hint.add_theme_color_override("font_color", color)
+
+
 func show_offer(manager: SkillManager, user: Node = null) -> void:
 	_manager = manager
 	_user = user
@@ -156,9 +183,10 @@ func show_offer(manager: SkillManager, user: Node = null) -> void:
 
 func _refresh() -> void:
 	if _selected == null:
-		_hint.text = "Новый навык: клик по карточке, затем по слоту. Изучённый: один клик."
+		_set_hint("Новый навык: клик по карточке, затем слот или клавиша 1, 2, 3. Изучённый: один клик.", COLOR_HINT)
 	else:
-		_hint.text = "Нажмите свободный слот, чтобы назначить «%s»." % _selected.skill_name
+		_set_hint("Нажмите свободный слот или клавишу 1, 2, 3, чтобы назначить «%s»." % _selected.skill_name,
+			COLOR_HINT)
 
 	for i in range(_cards.size()):
 		var button: Button = _cards[i]
@@ -320,10 +348,29 @@ func _on_skill_selected(index: int) -> void:
 
 
 func _on_slot_pressed(index: int) -> void:
+	_assign_selected_to_slot(index)
+
+
+## Общий путь назначения для клика по слоту и нажатия цифровой клавиши.
+func _assign_selected_to_slot(index: int) -> bool:
 	if _manager == null or _selected == null:
-		return
+		return false
+	if index < 0 or index >= _manager.skill_slots.size():
+		return false
+
+	var current: Skill = _manager.get_skill(index)
+	if current != null and current.skill_id != _selected.skill_id:
+		_set_hint("Слот %d занят: %s. Выберите свободный слот (1, 2 или 3)." % [
+			index + 1, current.skill_name,
+		], COLOR_WARNING)
+		return false
+
 	if _manager.acquire_skill(_selected, index):
 		close()
+		return true
+	_set_hint("Не удалось назначить «%s» в слот %d." % [_selected.skill_name, index + 1],
+		COLOR_WARNING)
+	return false
 
 
 func close() -> void:
