@@ -26,6 +26,14 @@ const COLOR_BODY: Color = Color(0.80, 0.86, 0.94)
 const COLOR_HINT: Color = Color(0.78, 0.90, 1.0)
 const COLOR_WARNING: Color = Color(1.0, 0.45, 0.42)
 
+## Короткие описания для карточек: только суть навыка, без формул роста.
+const SHORT_DESCRIPTIONS: Dictionary = {
+	SkillLibrary.FIREBALL: "Поджигающий огненный шар",
+	SkillLibrary.ICE_SLASH: "Обмораживающий удар льда",
+	SkillLibrary.WIND_DASH: "Мгновенный рывок",
+	SkillLibrary.EARTH_PULSE: "Ударная волна",
+}
+
 
 func _ready() -> void:
 	layer = 60
@@ -195,7 +203,7 @@ func _refresh() -> void:
 			continue
 		button.visible = true
 		_render_card(button, _choices[i])
-		button.tooltip_text = _choices[i].description
+		button.tooltip_text = _short_description(_choices[i])
 		button.modulate = Color.WHITE if _selected == _choices[i] else Color(0.72, 0.78, 0.88)
 
 	for i in range(_slot_buttons.size()):
@@ -263,36 +271,51 @@ func _render_card(button: Button, skill: Skill) -> void:
 		_pop_style(info)
 	info.newline()
 
-	_push_style(info, Color(0.75, 0.88, 1.0), 12)
-	info.add_text(Elements.display_list(skill.elements))
-	_pop_style(info)
-	info.newline()
+	# Новый навык: короткое описание, затем стат только для первого уровня.
+	# Экипированный: описание не показываем, только изменение стата.
+	var show_old: bool = owned != null
+	if not show_old:
+		_push_style(info, COLOR_BODY, 13)
+		info.add_text(_short_description(skill))
+		_pop_style(info)
+		info.newline()
 
-	# Характеристика, которая увеличится: старое значение мелкое, новое — крупное и зелёное.
-	if owned != null:
-		var old_multiplier: float = owned.damage_multiplier()
-		var old_damage: int = owned.damage_for(_user)
+	# Список статов: при появлении нескольких характеристик каждая пойдёт с новой строки.
+	var stats: Array = []
+	var old_damage_text: String = ""
+	if show_old:
+		old_damage_text = "%s (%d)" % [
+			_percent(owned.damage_multiplier()), owned.damage_for(_user),
+		]
+	stats.append({
+		"label": "Урон",
+		"old": old_damage_text,
+		"new": "%s (%d)" % [_percent(new_multiplier), new_damage],
+	})
+	for stat in stats:
+		_render_stat_line(info, String(stat["label"]), String(stat["old"]), String(stat["new"]), show_old)
+		info.newline()
+
+
+func _short_description(skill: Skill) -> String:
+	var text: String = String(SHORT_DESCRIPTIONS.get(skill.skill_id, ""))
+	return text if not text.is_empty() else skill.description
+
+
+func _render_stat_line(info: RichTextLabel, label: String, old_value: String, new_value: String,
+		show_old: bool) -> void:
+	if show_old:
 		_push_style(info, COLOR_OLD, 12)
-		info.add_text("Урон: %s (%d)" % [_percent(old_multiplier), old_damage])
+		info.add_text("%s: %s" % [label, old_value])
 		_pop_style(info)
 		info.add_text(" → ")
 		_push_style(info, COLOR_UPGRADE, 19)
-		info.add_text("%s (%d)" % [_percent(new_multiplier), new_damage])
+		info.add_text(new_value)
 		_pop_style(info)
 	else:
 		_push_style(info, COLOR_UPGRADE, 19)
-		info.add_text("Урон: %s (%d)" % [_percent(new_multiplier), new_damage])
+		info.add_text("%s: %s" % [label, new_value])
 		_pop_style(info)
-	info.newline()
-
-	_push_style(info, COLOR_OLD, 12)
-	info.add_text("КД: %d с" % int(skill.cooldown))
-	_pop_style(info)
-	info.newline()
-
-	_push_style(info, COLOR_BODY, 12)
-	info.add_text(_wrap_text(skill.description, 62))
-	_pop_style(info)
 
 
 func _push_style(info: RichTextLabel, color: Color, font_size: int) -> void:
@@ -307,27 +330,6 @@ func _pop_style(info: RichTextLabel) -> void:
 
 func _percent(value: float) -> String:
 	return "%d%%" % int(roundf(value * 100.0))
-
-
-func _wrap_text(text: String, max_chars: int) -> String:
-	var lines: Array[String] = []
-	var line: String = ""
-	for word in text.split(" ", false):
-		if line.is_empty():
-			line = word
-		elif line.length() + 1 + word.length() <= max_chars:
-			line += " " + word
-		else:
-			lines.append(line)
-			line = word
-	if not line.is_empty():
-		lines.append(line)
-	var result: String = ""
-	for i in range(lines.size()):
-		if i > 0:
-			result += "\n"
-		result += lines[i]
-	return result
 
 
 func _on_skill_selected(index: int) -> void:

@@ -313,6 +313,11 @@ func _check_level_up_menu_hotkeys() -> void:
 			target = i
 			break
 	_check(target >= 0, "level-up menu must offer a skill that is not owned")
+	var new_card_text: String = cards.get_child(target).get_child(0).get_parsed_text()
+	var short_description: String = menu._short_description(menu._choices[target])
+	_check(new_card_text.contains(short_description), "new skill card must show the short description")
+	_check(not new_card_text.contains("за уровень"), "new skill card must not show level-scaling formulas")
+	_check(not new_card_text.contains("КД:"), "new skill card must not show unchanged stats")
 	menu._on_skill_selected(target)
 
 	var occupied := InputEventAction.new()
@@ -330,6 +335,17 @@ func _check_level_up_menu_hotkeys() -> void:
 	_check(not menu.visible, "free skill hotkey must close level-up menu")
 	_check(not paused, "free skill hotkey must unpause the game")
 	_check(manager.get_skill(1) != null, "free skill hotkey must assign the selected skill")
+
+	# Экипированный навык показываем без описания — только изменение стата.
+	menu.show_offer(manager, user)
+	menu._choices = [manager.get_skill(0), SkillLibrary.create(SkillLibrary.ICE_SLASH)]
+	menu._refresh()
+	var owned_cards = menu.get_node("Panel").get_child(0).get_child(0).get_child(2)
+	var owned_card_text: String = owned_cards.get_child(0).get_child(0).get_parsed_text()
+	_check(not owned_card_text.contains("Поджигающий"), "owned skill card must not show a description")
+	_check(owned_card_text.contains("→"), "owned skill card must show stat change only")
+	_check(not owned_card_text.contains("КД:"), "owned skill card must not show unchanged stats")
+	menu.close()
 
 	menu.free()
 	manager.free()
