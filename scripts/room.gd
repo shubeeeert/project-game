@@ -1,7 +1,7 @@
 extends Node2D
 
 # ⭐ РАЗМЕРЫ (см. scripts/room_grid.gd)
-const ROOM_WIDTH: float = 832.0   # 13 клеток по 64px
+const ROOM_WIDTH: float = 960.0   # 15 клеток по 64px
 const ROOM_HEIGHT: float = 576.0  # 9 клеток по 64px
 const WALL_THICKNESS: float = 16.0
 const DOOR_WIDTH: float = 64.0

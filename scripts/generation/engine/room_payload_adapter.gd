@@ -1,12 +1,14 @@
 extends RefCounted
 
 ## Адаптер доменного FloorPlan (13x7, стороны north/south/west/east)
-## к формату существующего MapGenerator/RoomGrid (13x9, up/down/left/right).
+## к формату существующего MapGenerator/RoomGrid (15x9, up/down/left/right).
 ##
 ## Домен не меняется: адаптер только строит представление для движка.
-## Доменная сетка 7x13 вписывается в игровую 9x13 со сдвигом y + 1.
+## Доменная сетка 7x13 вписывается в игровую 9x15 со сдвигом x + 1 и y + 1,
+## то есть по одной свободной клетке остаётся слева, справа, сверху и снизу.
 
 const Types = preload("res://scripts/generation/core/generation_types.gd")
+const RoomGrid = preload("res://scripts/room_grid.gd")
 
 static func to_map_payload(floor_data: Dictionary, _options: Dictionary = {}) -> Dictionary:
 	var rooms: Dictionary = floor_data.get("rooms", {})
@@ -223,9 +225,10 @@ static func _enemy_type(entry: Dictionary) -> String:
 
 static func _to_grid_cell(cell_value: Variant) -> Vector2i:
 	var c := Types.cell_from(cell_value)
-	var x := int(c.x)
+	# Домен 13 колонок центрируется в 15 колонках комнаты: x=0..12 -> x=1..13.
+	var x := int(c.x) + 1
 	var y := int(c.y) + 1
-	if x < 0 or x >= 13 or y < 0 or y >= 9:
+	if x < 0 or x >= RoomGrid.WIDTH or y < 0 or y >= RoomGrid.HEIGHT:
 		return Vector2i(-1, -1)
 	return Vector2i(x, y)
 

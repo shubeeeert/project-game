@@ -1138,7 +1138,7 @@ func _check_room_visuals(sample: Dictionary) -> void:
 				if sub is CollisionShape2D and sub.shape is RectangleShape2D:
 					shapes.append(sub)
 			_check(shapes.size() >= 4, "room boundary must be a closed ring of blocks")
-			var interior := Rect2(-416.0, -288.0, 832.0, 576.0)
+			var interior := Rect2(-RoomGrid.ROOM_WIDTH * 0.5, -RoomGrid.ROOM_HEIGHT * 0.5, RoomGrid.ROOM_WIDTH, RoomGrid.ROOM_HEIGHT)
 			var clear := true
 			for sub in shapes:
 				var rect: RectangleShape2D = sub.shape

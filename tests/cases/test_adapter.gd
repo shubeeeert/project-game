@@ -7,12 +7,13 @@ extends "res://tests/framework/test_case.gd"
 ##     координаты;
 ##   - соответствие доменных сторон направлениям up/down/left/right;
 ##   - locked_doors отражает доменное состояние LOCKED;
-##   - сдвиг клеток сущностей и препятствий на y + 1 (13x7 -> 13x9);
+##   - сдвиг клеток сущностей и препятствий на x + 1, y + 1 (13x7 -> 15x9);
 ##   - процедурный и legacy режимы MapGenerator на отдельном инстансе,
 ##     без обращения к autoload.
 
 const Fixtures = preload("res://tests/framework/fixtures.gd")
 const Types = preload("res://scripts/generation/core/generation_types.gd")
+const RoomGrid = preload("res://scripts/room_grid.gd")
 const RoomPayloadAdapter = preload("res://scripts/generation/engine/room_payload_adapter.gd")
 const GraphHasher = preload("res://scripts/generation/serialization/graph_hasher.gd")
 
@@ -138,24 +139,25 @@ func _payload_cells() -> void:
 				if not entities_by_domain_id.has(domain_id):
 					continue
 				var domain_cell := Types.cell_from(entities_by_domain_id[domain_id].get("cell", {}))
-				assert_eq(int(enemy.get("grid_x", -1)), int(domain_cell.get("x", -1)), "room %s: enemy grid_x must equal domain x" % String(room_id))
+				assert_eq(int(enemy.get("grid_x", -1)), int(domain_cell.get("x", -1)) + 1, "room %s: enemy grid_x must be shifted by one" % String(room_id))
 				assert_eq(int(enemy.get("grid_y", -1)), int(domain_cell.get("y", -1)) + 1, "room %s: enemy grid_y must be shifted by one" % String(room_id))
-				assert_true(int(enemy.get("grid_x", -1)) >= 0 and int(enemy.get("grid_x", -1)) < 13, "room %s: enemy grid_x must be inside the room" % String(room_id))
-				assert_true(int(enemy.get("grid_y", -1)) >= 1 and int(enemy.get("grid_y", -1)) < 9, "room %s: enemy grid_y must be inside the room" % String(room_id))
+				assert_true(int(enemy.get("grid_x", -1)) >= 1 and int(enemy.get("grid_x", -1)) < RoomGrid.WIDTH - 1, "room %s: enemy grid_x must stay inside the domain area" % String(room_id))
+				assert_true(int(enemy.get("grid_y", -1)) >= 1 and int(enemy.get("grid_y", -1)) < RoomGrid.HEIGHT - 1, "room %s: enemy grid_y must be inside the room" % String(room_id))
 
 			for obstacle in room_payload.get("obstacles", []):
 				var grid_x := int(obstacle.get("grid_x", -1))
 				var grid_y := int(obstacle.get("grid_y", -1))
-				assert_true(grid_x >= 0 and grid_x < 13, "room %s: obstacle grid_x must be inside the room" % String(room_id))
-				assert_true(grid_y >= 1 and grid_y < 9, "room %s: obstacle grid_y must be inside the room" % String(room_id))
-				if tiles.is_empty() or grid_y < 1 or grid_y >= 9:
+				assert_true(grid_x >= 1 and grid_x < RoomGrid.WIDTH - 1, "room %s: obstacle grid_x must stay inside the domain area" % String(room_id))
+				assert_true(grid_y >= 1 and grid_y < RoomGrid.HEIGHT - 1, "room %s: obstacle grid_y must be inside the room" % String(room_id))
+				if tiles.is_empty() or grid_x < 1 or grid_x >= RoomGrid.WIDTH - 1 or grid_y < 1 or grid_y >= RoomGrid.HEIGHT - 1:
 					continue
+				var domain_x := grid_x - 1
 				var domain_y := grid_y - 1
-				var tile := int(tiles[domain_y][grid_x])
+				var tile := int(tiles[domain_y][domain_x])
 				assert_in(tile, [
 					Types.TILE_OBSTACLE, Types.TILE_SPIKE, Types.TILE_PIT,
 					Types.TILE_FLOOR, Types.TILE_SPAWN_POINT, Types.TILE_ITEM_PEDESTAL
-				], "room %s: obstacle %d:%d must come from a valid domain tile" % [String(room_id), grid_x, domain_y])
+				], "room %s: obstacle %d:%d must come from a valid domain tile" % [String(room_id), domain_x, domain_y])
 				if String(obstacle.get("type", "")) == "rock":
 					assert_eq(tile, Types.TILE_OBSTACLE, "room %s: rock must map to TILE_OBSTACLE" % String(room_id))
 				elif String(obstacle.get("type", "")) == "spike":
@@ -203,10 +205,10 @@ func _payload_features() -> void:
 					var domain_key: Dictionary = domain_keys_by_id[key_id]
 					assert_eq(String(payload_key.get("lock_id", "")), String(domain_key.get("lock_id", "")), "%s: key %s must keep its lock id" % [room_label, key_id])
 					var domain_cell := Types.cell_from(domain_key.get("cell", {}))
-					assert_eq(int(payload_key.get("grid_x", -1)), int(domain_cell.get("x", -1)), "%s: key %s grid_x must equal domain x" % [room_label, key_id])
+					assert_eq(int(payload_key.get("grid_x", -1)), int(domain_cell.get("x", -1)) + 1, "%s: key %s grid_x must be shifted by one" % [room_label, key_id])
 					assert_eq(int(payload_key.get("grid_y", -1)), int(domain_cell.get("y", -1)) + 1, "%s: key %s grid_y must be shifted by one" % [room_label, key_id])
-					assert_true(int(payload_key.get("grid_x", -1)) >= 0 and int(payload_key.get("grid_x", -1)) < 13, "%s: key %s grid_x must be inside the room" % [room_label, key_id])
-					assert_true(int(payload_key.get("grid_y", -1)) >= 1 and int(payload_key.get("grid_y", -1)) < 9, "%s: key %s grid_y must be inside the room" % [room_label, key_id])
+					assert_true(int(payload_key.get("grid_x", -1)) >= 1 and int(payload_key.get("grid_x", -1)) < RoomGrid.WIDTH - 1, "%s: key %s grid_x must stay inside the domain area" % [room_label, key_id])
+					assert_true(int(payload_key.get("grid_y", -1)) >= 1 and int(payload_key.get("grid_y", -1)) < RoomGrid.HEIGHT - 1, "%s: key %s grid_y must be inside the room" % [room_label, key_id])
 
 				# ---- Предметы ----
 				var domain_items: Array = domain_room.get("items", [])
@@ -222,7 +224,7 @@ func _payload_features() -> void:
 						continue
 					var domain_item: Dictionary = domain_items_by_id[item_id]
 					var item_cell := Types.cell_from(domain_item.get("cell", {}))
-					assert_eq(int(payload_item.get("grid_x", -1)), int(item_cell.get("x", -1)), "%s: item %s grid_x must equal domain x" % [room_label, item_id])
+					assert_eq(int(payload_item.get("grid_x", -1)), int(item_cell.get("x", -1)) + 1, "%s: item %s grid_x must be shifted by one" % [room_label, item_id])
 					assert_eq(int(payload_item.get("grid_y", -1)), int(item_cell.get("y", -1)) + 1, "%s: item %s grid_y must be shifted by one" % [room_label, item_id])
 					assert_eq(String(payload_item.get("kind", "")), String(domain_item.get("kind", "")), "%s: item %s must keep its kind" % [room_label, item_id])
 
@@ -242,7 +244,7 @@ func _payload_features() -> void:
 					if not domain_npcs_by_id.has(npc_id):
 						continue
 					var npc_cell := Types.cell_from(domain_npcs_by_id[npc_id].get("cell", {}))
-					assert_eq(int(payload_npc.get("grid_x", -1)), int(npc_cell.get("x", -1)), "%s: npc %s grid_x must equal domain x" % [room_label, npc_id])
+					assert_eq(int(payload_npc.get("grid_x", -1)), int(npc_cell.get("x", -1)) + 1, "%s: npc %s grid_x must be shifted by one" % [room_label, npc_id])
 					assert_eq(int(payload_npc.get("grid_y", -1)), int(npc_cell.get("y", -1)) + 1, "%s: npc %s grid_y must be shifted by one" % [room_label, npc_id])
 
 func _side_mapping() -> void:
@@ -413,8 +415,8 @@ func _legacy_mode() -> void:
 			var bosses: Array = first.rooms[pos].get("enemies", [])
 			assert_eq(bosses.size(), 1, "legacy boss room must contain exactly one boss")
 			assert_eq(String(bosses[0].get("type", "")), "boss", "legacy boss entry must use the boss type")
-			assert_eq(int(bosses[0].get("grid_x", -1)), 6, "legacy boss must stand in the centre column")
-			assert_eq(int(bosses[0].get("grid_y", -1)), 4, "legacy boss must stand in the centre row")
+			assert_eq(int(bosses[0].get("grid_x", -1)), RoomGrid.WIDTH / 2, "legacy boss must stand in the centre column")
+			assert_eq(int(bosses[0].get("grid_y", -1)), RoomGrid.HEIGHT / 2, "legacy boss must stand in the centre row")
 
 	var snapshot: Dictionary = first.rooms.duplicate(true)
 	var second = _new_map_generator()

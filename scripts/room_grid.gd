@@ -2,9 +2,11 @@ class_name RoomGrid
 extends RefCounted
 
 ## Общая логика сетки комнаты.
-## Комната — 13x9 клеток по 64px (832x576), стены толщиной 16px по краю.
+## Комната — 15x9 клеток по 64px (960x576), стены толщиной 16px по краю.
+## Доменная сетка генератора 13x7 вписывается в неё с отступами по одной клетке
+## слева и справа (и одной сверху/снизу).
 
-const WIDTH: int = 13
+const WIDTH: int = 15
 const HEIGHT: int = 9
 const CELL_SIZE: float = 64.0
 const ROOM_WIDTH: float = WIDTH * CELL_SIZE

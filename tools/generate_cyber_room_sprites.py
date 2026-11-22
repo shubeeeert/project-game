@@ -2,7 +2,7 @@
 """Процедурные текстуры киберпространства для комнат и подсветки сущностей.
 
 Выход:
-  sprites/cyber_floor.png  — пол 832x576 (13x9 клеток по 64px, 1:1 с комнатой)
+  sprites/cyber_floor.png  — пол 960x576 (15x9 клеток по 64px, 1:1 с комнатой)
   sprites/cyber_wall.png   — стена 512x16 с неоновой кромкой
   sprites/shadow.png       — мягкая тень 128x64 (белая, alpha-градиент)
   sprites/entity_glow.png  — мягкое свечение 128x128 для контраста сущностей
@@ -20,7 +20,7 @@ OUT = os.path.join(ROOT, "sprites")
 os.makedirs(OUT, exist_ok=True)
 
 CELL = 64
-FLOOR_W, FLOOR_H = 13 * CELL, 9 * CELL  # 832x576 — размер комнаты из room.gd
+FLOOR_W, FLOOR_H = 15 * CELL, 9 * CELL  # 960x576 — размер комнаты из room.gd
 
 
 def save(img, name):
