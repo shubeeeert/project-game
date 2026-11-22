@@ -52,6 +52,7 @@ func _on_first_frame() -> void:
 	_check_skill_execution()
 	_check_special_rooms_no_enemies()
 	_check_chest_always_gives_item()
+	_check_reward_chest_persists()
 	_check_new_enemies()
 	_check_run_economy()
 	_check_enemy_kill_reward()
@@ -750,6 +751,47 @@ func _check_chest_always_gives_item() -> void:
 		total += int(player.items[item_id])
 	_check(total == 5, "every chest must grant an item (5 chests -> 5 items, got %d)" % total)
 	player.free()
+
+
+## Динамический сундук должен переживать выгрузку комнаты и не возрождаться после открытия.
+func _check_reward_chest_persists() -> void:
+	var scene: PackedScene = load("res://scenes/rooms/room_start.tscn")
+	if scene == null:
+		_check(false, "room_start.tscn must load for reward chest persistence check")
+		return
+	var data: Dictionary = _map.get_room_data(_map.starting_room).duplicate(true)
+	data["items"] = []
+	data["enemies"] = []
+	data["npcs"] = []
+	data["obstacles"] = []
+	if not data.has("doors"):
+		data["doors"] = {}
+
+	var first = scene.instantiate()
+	root.add_child(first)
+	first.room_position = Vector2i(3, 3)
+	first.setup(data)
+	var chest = first.spawn_reward_chest_at(Vector2.ZERO)
+	_check(chest != null, "reward chest must spawn immediately")
+	_check((data["items"] as Array).size() == 1, "reward chest must be saved in room data")
+	var chest_id: String = String((data["items"] as Array)[0].get("item_id", ""))
+	first.free()
+
+	var second = scene.instantiate()
+	root.add_child(second)
+	second.room_position = Vector2i(3, 3)
+	second.setup(data)
+	_check(second.features.size() == 1, "reward chest must be restored after re-entering the room")
+	second.free()
+
+	_map.mark_item_claimed(chest_id)
+	var third = scene.instantiate()
+	root.add_child(third)
+	third.room_position = Vector2i(3, 3)
+	third.setup(data)
+	_check(third.features.size() == 0, "opened reward chest must not respawn")
+	third.free()
+
 
 ## Поведение новых врагов: симулируем _physics_process вручную на первом кадре.
 func _check_new_enemies() -> void:

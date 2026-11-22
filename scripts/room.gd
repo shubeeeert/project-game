@@ -671,15 +671,29 @@ func _spawn_feature(kind: String, data: Dictionary, cell: Vector2i) -> Node2D:
 	return feature
 
 ## Динамический сундук из награды за убийство/зачистку комнаты.
+## Сундук сразу записывается в room_data, чтобы пережить выгрузку комнаты:
+## при возвращении _spawn_features() восстановит его по сохранённой координате,
+## а открытый сундук будет пропущен через MapGenerator.claimed_items.
 func spawn_reward_chest_at(local_pos: Vector2) -> Node2D:
 	var cell := world_to_grid(local_pos)
 	if not is_valid_grid_pos(cell):
 		cell = get_random_grid_position_excluding([])
+
+	if not room_data.has("items") or not (room_data["items"] is Array):
+		room_data["items"] = []
+	var items_data: Array = room_data["items"]
+	var ordinal: int = items_data.size()
 	var payload := {
-		"item_id": "reward_chest_%d_%d_%d" % [Time.get_ticks_usec(), cell.x, cell.y],
+		"item_id": "reward_f%d_%d_%d_%03d" % [
+			MapGenerator.floor_index, room_position.x, room_position.y, ordinal,
+		],
+		"kind": "item",
+		"grid_x": cell.x,
+		"grid_y": cell.y,
 		"value": 1,
-		"rarity": "common"
+		"rarity": "common",
 	}
+	items_data.append(payload)
 	return _spawn_feature("chest", payload, cell)
 
 ## В комнате босса после зачистки появляется портал на следующий этаж.
