@@ -12,8 +12,8 @@ var stats: PlayerStats = null
 var items: Dictionary = {}
 
 ## Исходная геометрия хитбокса меча из сцены; дальность атаки масштабирует её.
-const NATIVE_HITBOX_POS: Vector2 = Vector2(36, 0)
-const NATIVE_HITBOX_SIZE: Vector2 = Vector2(84, 20)
+const NATIVE_HITBOX_POS: Vector2 = Vector2(52, 0)
+const NATIVE_HITBOX_SIZE: Vector2 = Vector2(104, 88)
 const NATIVE_HITBOX_REACH: float = 78.0
 const NATIVE_SWORD_SCALE: float = 2.4
 
@@ -75,6 +75,7 @@ const AIM_MAX_SPEED: float = 14.0  # предельная угловая ско�
 # ============================================
 @onready var hitbox_area: Area2D = %HitboxArea
 @onready var hitbox_shape: CollisionShape2D = %HitboxArea/CollisionShape2D
+@onready var attack_pivot: Node2D = %AttackPivot
 @onready var body_shape: CollisionShape2D = $BodyShape
 @onready var health = %HealthComponent
 @onready var hurtbox = %HurtboxComponent
@@ -163,7 +164,7 @@ func _apply_attack_range() -> void:
 	hitbox_area.position = NATIVE_HITBOX_POS * factor
 	var rect := hitbox_shape.shape as RectangleShape2D
 	if rect:
-		rect.size = Vector2(NATIVE_HITBOX_SIZE.x * factor, NATIVE_HITBOX_SIZE.y)
+		rect.size = Vector2(NATIVE_HITBOX_SIZE.x * factor, NATIVE_HITBOX_SIZE.y * factor)
 	sword_sprite.scale = Vector2.ONE * (NATIVE_SWORD_SCALE * factor)
 	sword_glow.scale = sword_sprite.scale * 1.08
 
@@ -293,6 +294,7 @@ func start_attack() -> void:
 	if dir == Vector2.ZERO:
 		dir = Vector2.RIGHT
 	var base_angle: float = dir.angle()
+	attack_pivot.rotation = base_angle
 
 	if animated_sprite.flip_h:
 		animated_sprite.flip_h = false
@@ -403,6 +405,14 @@ func grant_invincibility(duration: float) -> void:
 func start_dash(direction: Vector2, distance: float, duration: float) -> void:
 	if is_dead or is_falling or is_dashing:
 		return
+	if is_attacking:
+		_kill_attack_tweens()
+		is_attacking = false
+		hitbox_area.set_deferred("monitoring", false)
+		hitbox_shape.set_deferred("disabled", true)
+		sword_trail.reset()
+		sword_pivot.rotation = _aim_angle
+		sword_scabbard_pose()
 	var dir := direction.normalized() if direction.length_squared() > 0.0001 else Vector2.RIGHT
 	is_dashing = true
 	_dash_direction = dir

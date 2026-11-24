@@ -105,8 +105,8 @@ func _check_player() -> void:
 		_check(player.stats.attack_speed == 1.0, "player base attack speed must be 1.00")
 		_check(player.stats.move_speed == 1.0, "player base move speed must be 1.00")
 		_check(player.stats.attack_range == 1.0, "player base attack range must be 1.00")
-	var hitbox = player.get_node_or_null("SwordPivot/Sword/HitboxArea")
-	_check(hitbox != null and hitbox.damage == 10, "sword hitbox damage must sync with stats")
+	var hitbox = player.get_node_or_null("AttackPivot/HitboxArea")
+	_check(hitbox != null and hitbox.damage == 10, "attack hitbox damage must sync with stats")
 	var hurtbox = player.get_node_or_null("HurtboxComponent")
 	_check(hurtbox != null and (hurtbox.collision_mask & 32) != 0,
 		"player hurtbox must listen to the bullet layer (32)")
@@ -117,7 +117,7 @@ func _check_player() -> void:
 	_check(absf(player.stats.move_speed - 1.2) < 0.0001, "two gamepads must give move speed 1.20")
 	player.add_item("fire")
 	_check(player.stats.damage == 12.0, "Fire! must add 2 damage")
-	_check(hitbox != null and hitbox.damage == 12, "hitbox damage must follow item bonuses")
+	_check(hitbox != null and hitbox.damage == 12, "attack hitbox damage must follow item bonuses")
 	# Визуал меча: след и подсветка лезвия должны быть частью сцены игрока.
 	var trail = player.get_node_or_null("SwordTrail")
 	_check(trail != null, "player must have a sword trail node")
@@ -195,7 +195,7 @@ func _check_collision_layers() -> void:
 	player.sword.position = Vector2.ZERO
 	player.sword.rotation = 0.0
 	player.sword.scale = Vector2.ONE
-	var sword_hitbox: Area2D = player.get_node("SwordPivot/Sword/HitboxArea")
+	var sword_hitbox: Area2D = player.get_node("AttackPivot/HitboxArea")
 	enemy.global_position = sword_hitbox.global_position - Vector2(10, 0)
 	enemy._apply_knockback(sword_hitbox)
 	_check(enemy.knockback_velocity.x > 0.0,

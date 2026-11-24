@@ -525,8 +525,8 @@ func _spawn_enemies() -> void:
 				var grid_pos = Vector2i(enemy_data["grid_x"], enemy_data["grid_y"])
 				world_pos = grid_to_world(grid_pos)
 				if String(enemy_data.get("type", "")) == "boss":
-					# Босс 2x2: grid_x/y — верхняя левая клетка, центр смещаем на полклетки.
-					world_pos += Vector2(RoomGrid.CELL_SIZE * 0.5, RoomGrid.CELL_SIZE * 0.5)
+					# Босс всегда появляется строго по центру комнаты.
+					world_pos = grid_to_world(Vector2i(RoomGrid.WIDTH / 2, RoomGrid.HEIGHT / 2))
 				print("🎯 Spawning enemy at grid ", grid_pos, " → world ", world_pos)
 			elif enemy_data.has("x") and enemy_data.has("y"):
 				world_pos = Vector2(enemy_data["x"], enemy_data["y"])
@@ -712,15 +712,8 @@ func _spawn_stairs() -> void:
 		return
 	_stairs_spawned = true
 	var cell := Vector2i(RoomGrid.WIDTH / 2, RoomGrid.HEIGHT / 2)
-	var boss_center_offset := Vector2.ZERO
-	for enemy_data in room_data.get("enemies", []):
-		if String(enemy_data.get("type", "")) == "boss":
-			cell = _cell_from_data(enemy_data)
-			boss_center_offset = Vector2(RoomGrid.CELL_SIZE * 0.5, RoomGrid.CELL_SIZE * 0.5)
-			break
 	var feature := _spawn_feature("stairs", {"stairs": "next_floor"}, cell)
 	if feature != null:
-		feature.position += boss_center_offset
 		print("🌀 Stairs spawned in boss room at ", cell)
 
 # ============================================

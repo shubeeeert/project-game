@@ -17,7 +17,7 @@ radius = 16.0
 size = Vector2(28.5, 36)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jq8tk"]
-size = Vector2(84, 20)
+size = Vector2(104, 88)
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_sword_glow"]
 blend_mode = 1
@@ -178,6 +178,22 @@ unique_name_in_owner = true
 z_index = 4
 script = ExtResource("9_swordtrail")
 
+[node name="AttackPivot" type="Node2D" parent="." unique_id=346154887]
+unique_name_in_owner = true
+
+[node name="HitboxArea" type="Area2D" parent="AttackPivot" unique_id=454154938]
+unique_name_in_owner = true
+position = Vector2(52, 0)
+collision_mask = 2
+monitoring = false
+monitorable = false
+script = ExtResource("4_qlg0r")
+metadata/_custom_type_script = "uid://3u7fi4sjs8no"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackPivot/HitboxArea" unique_id=1455915755]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_jq8tk")
+
 [node name="SwordPivot" type="Node2D" parent="." unique_id=346154888]
 unique_name_in_owner = true
 
@@ -199,19 +215,6 @@ rotation = 4.71238898
 scale = Vector2(2.4, 2.4)
 texture = ExtResource("7_smehm")
 offset = Vector2(0, 32)
-
-[node name="HitboxArea" type="Area2D" parent="SwordPivot/Sword" unique_id=454154938]
-unique_name_in_owner = true
-position = Vector2(36, 0)
-collision_mask = 2
-monitoring = false
-monitorable = false
-script = ExtResource("4_qlg0r")
-metadata/_custom_type_script = "uid://3u7fi4sjs8no"
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="SwordPivot/Sword/HitboxArea" unique_id=1455915755]
-unique_name_in_owner = true
-shape = SubResource("RectangleShape2D_jq8tk")
 
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1604206674]
