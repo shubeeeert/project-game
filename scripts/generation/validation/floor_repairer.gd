@@ -375,7 +375,7 @@ static func _ensure_special_content(floor_data: Dictionary, repairs: Array) -> v
 		var room: Dictionary = floor_data["rooms"][room_id]
 		var room_type := String(room.get("type", ""))
 		if room_type == "BOSS" and not _has_entity_kind(room, "boss"):
-			var cell_value := _free_center(room)
+			var cell_value := _free_boss_anchor(room)
 			if not cell_value.is_empty():
 				room["entities"] = room.get("entities", [])
 				room["entities"].append({
@@ -383,6 +383,8 @@ static func _ensure_special_content(floor_data: Dictionary, repairs: Array) -> v
 					"type": "boss_repair",
 					"kind": "boss",
 					"cell": cell_value,
+					"footprint_w": 2,
+					"footprint_h": 2,
 					"cost": 0,
 					"elite": true,
 					"tags": ["boss"]
@@ -468,6 +470,45 @@ static func _free_center(room: Dictionary) -> Dictionary:
 					return Types.cell(x, y)
 		return {}
 	return cell_value
+
+static func _free_boss_anchor(room: Dictionary) -> Dictionary:
+	var tiles: Array = room.get("interior", {}).get("tiles", [])
+	if tiles.is_empty():
+		return Types.cell(Types.WIDTH / 2 - 1, Types.HEIGHT / 2 - 1)
+	var entrance: Dictionary = {}
+	for cell_value in room.get("zones", {}).get("entrance", []):
+		entrance[Types.cell_index(cell_value)] = true
+	var preferred := [
+		Types.cell(Types.WIDTH / 2 - 1, Types.HEIGHT / 2 - 1),
+		Types.cell(Types.WIDTH / 2, Types.HEIGHT / 2 - 1),
+		Types.cell(Types.WIDTH / 2 - 1, Types.HEIGHT / 2),
+		Types.cell(Types.WIDTH / 2, Types.HEIGHT / 2),
+	]
+	for anchor in preferred:
+		if _boss_anchor_ok(tiles, entrance, anchor):
+			return anchor
+	for y in range(1, Types.HEIGHT - 2):
+		for x in range(1, Types.WIDTH - 2):
+			var anchor := Types.cell(x, y)
+			if _boss_anchor_ok(tiles, entrance, anchor):
+				return anchor
+	return {}
+
+static func _boss_anchor_ok(tiles: Array, entrance: Dictionary, anchor: Dictionary) -> bool:
+	var ax := int(anchor.get("x", -1))
+	var ay := int(anchor.get("y", -1))
+	if ax < 0 or ay < 0 or ax + 2 > Types.WIDTH or ay + 2 > Types.HEIGHT:
+		return false
+	for dy in range(2):
+		for dx in range(2):
+			var x := ax + dx
+			var y := ay + dy
+			var tile := int(tiles[y][x])
+			if tile in [Types.TILE_WALL, Types.TILE_OBSTACLE, Types.TILE_PIT]:
+				return false
+			if entrance.has(Types.cell_index(Types.cell(x, y))):
+				return false
+	return true
 
 static func _set_pedestal(room: Dictionary, cell_value: Dictionary) -> void:
 	var tiles: Array = room.get("interior", {}).get("tiles", [])

@@ -71,10 +71,19 @@ func _validate_entry(entry: Dictionary, kind_name: String, room: Dictionary, til
 		return
 	var x := int((cell_value as Dictionary).get("x", -1))
 	var y := int((cell_value as Dictionary).get("y", -1))
-	assert_true(x >= 0 and x < Types.WIDTH and y >= 0 and y < Types.HEIGHT, "%s/%s: %s %s is outside the room at %d:%d" % [label, room_id, kind_name, entry_id, x, y])
-	if x < 0 or x >= Types.WIDTH or y < 0 or y >= Types.HEIGHT or tiles.is_empty():
+	var kind := String(entry.get("kind", ""))
+	var fw := int(entry.get("footprint_w", 2 if kind == "boss" else 1))
+	var fh := int(entry.get("footprint_h", 2 if kind == "boss" else 1))
+	fw = maxi(fw, 1)
+	fh = maxi(fh, 1)
+	assert_true(x >= 0 and y >= 0 and x + fw <= Types.WIDTH and y + fh <= Types.HEIGHT, "%s/%s: %s %s is outside the room at %d:%d (%dx%d)" % [label, room_id, kind_name, entry_id, x, y, fw, fh])
+	if x < 0 or y < 0 or x + fw > Types.WIDTH or y + fh > Types.HEIGHT or tiles.is_empty():
 		return
-	var tile := int(tiles[y][x])
-	assert_false(tile in [Types.TILE_WALL, Types.TILE_OBSTACLE], "%s/%s: %s %s stands on blocked tile %d" % [label, room_id, kind_name, entry_id, tile])
-	if kind_name == "entity" and String(entry.get("kind", "")) in ["enemy", "elite", "miniboss", "boss", "normal", "fast", "shooting", "jumping", "chaotic"]:
-		assert_false(entrance_indices.has(y * Types.WIDTH + x), "%s/%s: enemy %s must not stand in the entrance zone" % [label, room_id, entry_id])
+	for dy in range(fh):
+		for dx in range(fw):
+			var cx := x + dx
+			var cy := y + dy
+			var tile := int(tiles[cy][cx])
+			assert_false(tile in [Types.TILE_WALL, Types.TILE_OBSTACLE], "%s/%s: %s %s stands on blocked tile %d at %d:%d" % [label, room_id, kind_name, entry_id, tile, cx, cy])
+			if kind_name == "entity" and kind in ["enemy", "elite", "miniboss", "boss", "normal", "fast", "shooting", "jumping", "chaotic"]:
+				assert_false(entrance_indices.has(cy * Types.WIDTH + cx), "%s/%s: enemy %s must not stand in the entrance zone" % [label, room_id, entry_id])

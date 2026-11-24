@@ -10,16 +10,22 @@ extends HitboxComponent
 
 const BULLET_LAYER: int = 32
 const LIFETIME: float = 2.5
-const RADIUS: float = 6.0
+const DEFAULT_RADIUS: float = 6.0
 
 var velocity: Vector2 = Vector2.ZERO
 var _color: Color = Color(0.75, 0.45, 1.0)
 var _life_left: float = LIFETIME
+var _radius: float = DEFAULT_RADIUS
+var _shape: CollisionShape2D = null
 
-func setup(direction: Vector2, speed: float, bullet_damage: int, color: Color) -> void:
+func setup(direction: Vector2, speed: float, bullet_damage: int, color: Color, radius: float = DEFAULT_RADIUS) -> void:
 	velocity = direction.normalized() * speed
 	damage = bullet_damage
 	_color = color
+	_radius = radius
+	if _shape != null and _shape.shape is CircleShape2D:
+		(_shape.shape as CircleShape2D).radius = _radius
+	queue_redraw()
 
 func _ready() -> void:
 	collision_layer = BULLET_LAYER
@@ -29,11 +35,11 @@ func _ready() -> void:
 	# Пули видны поверх врагов, но под эффектами навыков.
 	z_index = 7
 	add_to_group("enemy_bullet")
-	var shape := CollisionShape2D.new()
+	_shape = CollisionShape2D.new()
 	var circle := CircleShape2D.new()
-	circle.radius = RADIUS
-	shape.shape = circle
-	add_child(shape)
+	circle.radius = _radius
+	_shape.shape = circle
+	add_child(_shape)
 	area_entered.connect(_on_area_entered)
 	body_entered.connect(_on_body_entered)
 	queue_redraw()
@@ -45,9 +51,9 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, RADIUS + 2.0, Color(_color.r, _color.g, _color.b, 0.35))
-	draw_circle(Vector2.ZERO, RADIUS, _color)
-	draw_circle(Vector2.ZERO, RADIUS * 0.45, Color(1, 1, 1, 0.9))
+	draw_circle(Vector2.ZERO, _radius + 2.0, Color(_color.r, _color.g, _color.b, 0.35))
+	draw_circle(Vector2.ZERO, _radius, _color)
+	draw_circle(Vector2.ZERO, _radius * 0.45, Color(1, 1, 1, 0.9))
 
 func _on_area_entered(area: Area2D) -> void:
 	var owner_node := area.get_owner()

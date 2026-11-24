@@ -82,23 +82,33 @@ func _validate_entry(issues: Array, room_id: String, room: Dictionary, tiles: Ar
 	elif cell_value is Vector2i:
 		x = (cell_value as Vector2i).x
 		y = (cell_value as Vector2i).y
-	if x < 0 or x >= Types.WIDTH or y < 0 or y >= Types.HEIGHT:
-		_add(issues, "ENTITY_OUT_OF_BOUNDS", "critical", "%s %s is outside the room at %d:%d" % [kind_name, entity_id, x, y], room_id, entity_id)
+	var entity_kind := String(entry.get("kind", ""))
+	var fw := int(entry.get("footprint_w", 2 if entity_kind == "boss" else 1))
+	var fh := int(entry.get("footprint_h", 2 if entity_kind == "boss" else 1))
+	fw = maxi(fw, 1)
+	fh = maxi(fh, 1)
+
+	if x < 0 or y < 0 or x + fw > Types.WIDTH or y + fh > Types.HEIGHT:
+		_add(issues, "ENTITY_OUT_OF_BOUNDS", "critical", "%s %s is outside the room at %d:%d (%dx%d)" % [kind_name, entity_id, x, y, fw, fh], room_id, entity_id)
 		return
 	if tiles.is_empty():
 		return
-	var index: int = y * Types.WIDTH + x
-	var tile := int(tiles[y][x])
-	if tile in [Types.TILE_WALL, Types.TILE_OBSTACLE]:
-		_add(issues, "ENTITY_ON_BLOCKED_TILE", "error", "%s %s is on blocked tile %d" % [kind_name, entity_id, tile], room_id, entity_id)
 
-	var entity_kind := String(entry.get("kind", ""))
-	if kind_name == "entity" and entity_kind in ["enemy", "elite", "miniboss", "boss"]:
-		if entrance_indices.has(index):
-			_add(issues, "ENEMY_IN_ENTRANCE", "error", "enemy %s is inside the entrance safe zone" % entity_id, room_id, entity_id)
-	if kind_name == "item" and distances is PackedByteArray and not (distances as PackedByteArray).is_empty():
-		if int(distances[index]) == 0:
-			_add(issues, "ITEM_UNREACHABLE", "error", "item %s is unreachable" % entity_id, room_id, entity_id)
+	for dy in range(fh):
+		for dx in range(fw):
+			var cx := x + dx
+			var cy := y + dy
+			var index: int = cy * Types.WIDTH + cx
+			var tile := int(tiles[cy][cx])
+			if tile in [Types.TILE_WALL, Types.TILE_OBSTACLE]:
+				_add(issues, "ENTITY_ON_BLOCKED_TILE", "error", "%s %s is on blocked tile %d at %d:%d" % [kind_name, entity_id, tile, cx, cy], room_id, entity_id)
+			if kind_name == "entity" and entity_kind in ["enemy", "elite", "miniboss", "boss"]:
+				if entrance_indices.has(index):
+					_add(issues, "ENEMY_IN_ENTRANCE", "error", "enemy %s is inside the entrance safe zone" % entity_id, room_id, entity_id)
+			if kind_name == "item" and distances is PackedByteArray and not (distances as PackedByteArray).is_empty():
+				if int(distances[index]) == 0:
+					_add(issues, "ITEM_UNREACHABLE", "error", "item %s is unreachable" % entity_id, room_id, entity_id)
+
 	if kind_name == "shop_good" and int(entry.get("price", 0)) <= 0:
 		_add(issues, "SHOP_ITEM_NO_PRICE", "warning", "shop item %s has no price" % entity_id, room_id, entity_id)
 	if String(room.get("type", "")) == "SHOP" and kind_name == "item" and int(entry.get("price", 0)) <= 0:

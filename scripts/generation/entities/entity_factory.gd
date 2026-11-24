@@ -172,3 +172,82 @@ static func pick_cell(room: Dictionary, safe: Dictionary, occupied: Dictionary, 
 
 static func reserve(occupied: Dictionary, cell_value: Variant) -> void:
 	occupied[Types.cell_index(cell_value)] = true
+
+static func footprint_cells(anchor: Variant, width: int = 1, height: int = 1) -> Array:
+	var c := Types.cell_from(anchor)
+	var result: Array = []
+	for dy in range(height):
+		for dx in range(width):
+			result.append(Types.cell(int(c.x) + dx, int(c.y) + dy))
+	return result
+
+static func footprint_in_bounds(anchor: Variant, width: int = 1, height: int = 1) -> bool:
+	var c := Types.cell_from(anchor)
+	return int(c.x) >= 0 and int(c.y) >= 0 and int(c.x) + width <= Types.WIDTH and int(c.y) + height <= Types.HEIGHT
+
+static func footprint_fits(room: Dictionary, anchor: Variant, width: int, height: int, safe: Dictionary, occupied: Dictionary, allowed_tiles: Array, reachable: Variant = {}) -> bool:
+	if not footprint_in_bounds(anchor, width, height):
+		return false
+	var grid := room_grid(room)
+	if grid.is_empty():
+		return false
+	var allowed: Dictionary = {}
+	for tile in allowed_tiles:
+		allowed[int(tile)] = true
+	var has_reachable := not (reachable is Dictionary and (reachable as Dictionary).is_empty()) and not (reachable is PackedByteArray and (reachable as PackedByteArray).is_empty())
+	for cell_value in footprint_cells(anchor, width, height):
+		var c := Types.cell_from(cell_value)
+		var x := int(c.x)
+		var y := int(c.y)
+		if y < 0 or y >= grid.size() or x < 0 or x >= grid[y].size():
+			return false
+		if not allowed.has(int(grid[y][x])):
+			return false
+		var index: int = y * Types.WIDTH + x
+		if safe.has(index) or occupied.has(index):
+			return false
+		if has_reachable and not _reachable_has(reachable, index):
+			return false
+	return true
+
+static func reserve_footprint(occupied: Dictionary, anchor: Variant, width: int = 1, height: int = 1) -> void:
+	for cell_value in footprint_cells(anchor, width, height):
+		reserve(occupied, cell_value)
+
+static func pick_footprint(room: Dictionary, safe: Dictionary, occupied: Dictionary, rng: RefCounted, allowed_tiles: Array, width: int, height: int, reachable: Variant = {}, min_distance: int = 2) -> Dictionary:
+	var grid := room_grid(room)
+	if grid.is_empty():
+		return {}
+	var candidates: Array = []
+	for y in range(grid.size()):
+		for x in range(grid[y].size()):
+			var anchor := Types.cell(x, y)
+			if footprint_fits(room, anchor, width, height, safe, occupied, allowed_tiles, reachable):
+				candidates.append(anchor)
+	if candidates.is_empty():
+		return {}
+
+	var occupied_cells: Array = []
+	for key in occupied:
+		occupied_cells.append(Types.key_index(key))
+
+	rng.shuffle(candidates)
+	for anchor in candidates:
+		var far_enough := true
+		for cell_value in footprint_cells(anchor, width, height):
+			var c := Types.cell_from(cell_value)
+			var x := int(c.x)
+			var y := int(c.y)
+			for other in occupied_cells:
+				var other_index := int(other)
+				var other_x := other_index % Types.WIDTH
+				var other_y := int((other_index - other_x) / float(Types.WIDTH))
+				var distance: int = maxi(absi(x - other_x), absi(y - other_y))
+				if distance < min_distance:
+					far_enough = false
+					break
+			if not far_enough:
+				break
+		if far_enough:
+			return anchor
+	return candidates[0]

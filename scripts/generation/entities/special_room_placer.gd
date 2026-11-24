@@ -22,13 +22,15 @@ static func _place_boss(room, floor_index: int, pools: RefCounted, budget: RefCo
 	var entry: Dictionary = pools.enemy_by_kind("boss", floor_index)
 	if entry.is_empty():
 		return
-	var cell_value := _spawn_cell(room, "boss", rng, safe, occupied, reachable, true)
+	var cell_value := _boss_spawn_cell(room, rng, safe, occupied, reachable)
 	if cell_value.is_empty():
 		return
 	var entity := Factory.make_enemy(floor_index, room, entry, cell_value, room.get("entities", []).size(), "boss")
+	entity["footprint_w"] = 2
+	entity["footprint_h"] = 2
 	_force_spend(budget, float(entity.get("cost", 0)))
 	room["entities"].append(entity)
-	Factory.reserve(occupied, cell_value)
+	Factory.reserve_footprint(occupied, cell_value, 2, 2)
 
 static func _place_reward_item(room, floor_index: int, pools: RefCounted, rng: RefCounted, occupied: Dictionary, reachable: Variant, preferred_id: String) -> void:
 	var entry: Dictionary = {}
@@ -100,6 +102,23 @@ static func _place_shop(room, floor_index: int, pools: RefCounted, rng: RefCount
 			"tags": ["npc", "shop"]
 		})
 		Factory.reserve(occupied, npc_cell)
+
+static func _boss_spawn_cell(room: Dictionary, rng: RefCounted, safe: Dictionary, occupied: Dictionary, reachable: Variant) -> Dictionary:
+	var blocked := {}
+	var allowed := [Types.TILE_FLOOR, Types.TILE_SPAWN_POINT]
+	for point in room.get("spawn_points", []):
+		if String(point.get("kind", "")) != "boss":
+			continue
+		var anchor := Types.cell_from(point.get("cell", Types.cell(0, 0)))
+		if Factory.footprint_fits(room, anchor, 2, 2, blocked, occupied, allowed, reachable):
+			return anchor
+		# Пробуем сдвинуть якорь так, чтобы 2x2 поместился вокруг спавн-точки.
+		for dy in [-1, 0]:
+			for dx in [-1, 0]:
+				var shifted := Types.cell(int(anchor.x) + dx, int(anchor.y) + dy)
+				if Factory.footprint_fits(room, shifted, 2, 2, blocked, occupied, allowed, reachable):
+					return shifted
+	return Factory.pick_footprint(room, blocked, occupied, rng, allowed, 2, 2, reachable)
 
 static func _spawn_cell(room: Dictionary, kind: String, rng: RefCounted, safe: Dictionary, occupied: Dictionary, reachable: Variant, allow_safe: bool = false) -> Dictionary:
 	for point in room.get("spawn_points", []):
