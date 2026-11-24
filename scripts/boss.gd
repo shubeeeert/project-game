@@ -86,6 +86,12 @@ func _physics_process(delta: float) -> void:
 
 	_process_statuses(delta)
 
+	if is_action_delayed:
+		action_delay_timer -= action_delta(delta)
+		if action_delay_timer <= 0.0:
+			action_delay_timer = 0.0
+			is_action_delayed = false
+
 	# Задержка действий (от внешних эффектов) ставит босса на паузу,
 	# но уже начатый прыжок/рывок не ломаем жёстко - просто ждём can_act.
 	if not can_act():
