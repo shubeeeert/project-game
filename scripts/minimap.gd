@@ -92,14 +92,15 @@ func _rebuild_map() -> void:
 			cell.queue_free()
 		_room_cells.erase(pos)
 	
-	# ⭐ ШАГ 2: Вычисляем размеры карты
+	# ⭐ ШАГ 2: Вычисляем размеры карты по ВСЕМ комнатам этажа,
+	# чтобы область миникарты была фиксированной и не прыгала при исследовании.
 	var min_x = 0
 	var max_x = 0
 	var min_y = 0
 	var max_y = 0
 	var first = true
 	
-	for pos in visible_rooms:
+	for pos in rooms.keys():
 		if first:
 			min_x = pos.x
 			max_x = pos.x
@@ -111,6 +112,11 @@ func _rebuild_map() -> void:
 			max_x = max(max_x, pos.x)
 			min_y = min(min_y, pos.y)
 			max_y = max(max_y, pos.y)
+	# Минимальный зарезервированный размер — 2x2 клетки.
+	if (max_x - min_x + 1) < 2:
+		max_x = min_x + 1
+	if (max_y - min_y + 1) < 2:
+		max_y = min_y + 1
 	
 	var map_width = (max_x - min_x + 1) * (cell_size + cell_spacing) - cell_spacing
 	var map_height = (max_y - min_y + 1) * (cell_size + cell_spacing) - cell_spacing
