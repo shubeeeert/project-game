@@ -53,7 +53,7 @@ func _validate_room(room: Dictionary, label: String, seen_ids: Dictionary) -> vo
 		for item in room.get("items", []):
 			if int(item.get("price", 0)) > 0:
 				priced += 1
-		assert_ge(float(priced), 2.0, "%s/%s: shop must contain at least two priced goods" % [label, room_id])
+		assert_ge(float(priced), 1.0, "%s/%s: shop must contain at least one priced good" % [label, room_id])
 
 	var budget := float(room.get("difficulty_budget", 0))
 	var spent := float(room.get("difficulty_spent", 0))

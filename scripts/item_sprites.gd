@@ -1,9 +1,9 @@
 class_name ItemSprites
 extends RefCounted
 
-## Спрайты предметов: случайные узоры и цвета, сгенерированные кодом.
-## Seed берётся из id предмета, поэтому у одного предмета спрайт всегда
-## одинаковый, а у разных — разные узоры и палитры.
+## Уникальные спрайты предметов. Для каждого предмета используется свой
+## нарисованный спрайт из res://sprites/items/<id>.png. Если файла нет,
+## используется простой запасной вариант.
 
 const SIZE: int = 32
 
@@ -12,73 +12,36 @@ static var _cache: Dictionary = {}
 static func texture_for(item_id: String) -> ImageTexture:
 	if _cache.has(item_id):
 		return _cache[item_id]
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(item_id)
-	var image := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
-	var base := Color.from_hsv(rng.randf(), 0.55, 0.22)
-	image.fill(base)
-	match rng.randi() % 4:
-		0:
-			_rings(image, rng)
-		1:
-			_mosaic(image, rng)
-		2:
-			_stripes(image, rng)
-		_:
-			_splatter(image, rng)
-	_border(image, rng)
+
+	var image := _load_item_image(item_id)
+	if image == null or image.is_empty():
+		image = _fallback_image(item_id)
 	var texture := ImageTexture.create_from_image(image)
 	_cache[item_id] = texture
 	return texture
 
-## Концентрические кольца случайных цветов.
-static func _rings(image: Image, rng: RandomNumberGenerator) -> void:
-	var center := Vector2(SIZE / 2.0, SIZE / 2.0)
-	var colors: Array = []
-	for i in range(4):
-		colors.append(Color.from_hsv(rng.randf(), 0.75, 0.95))
-	for y in range(SIZE):
-		for x in range(SIZE):
-			var dist := Vector2(x, y).distance_to(center)
-			var band := int(dist / 4.0) % colors.size()
-			image.set_pixel(x, y, colors[band])
+static func _load_item_image(item_id: String) -> Image:
+	var path := "res://sprites/items/%s.png" % item_id
+	var abs_path := ProjectSettings.globalize_path(path)
+	if not FileAccess.file_exists(path) and not FileAccess.file_exists(abs_path):
+		return null
+	var image := Image.new()
+	var err := image.load(abs_path)
+	if err != OK:
+		err = image.load(path)
+	if err != OK:
+		return null
+	if image.get_width() != SIZE or image.get_height() != SIZE:
+		image.resize(SIZE, SIZE, Image.INTERPOLATE_NEAREST)
+	return image
 
-## Мозаика из случайных цветных квадратов.
-static func _mosaic(image: Image, rng: RandomNumberGenerator) -> void:
-	var cell := 4
-	for gy in range(SIZE / cell):
-		for gx in range(SIZE / cell):
-			var color := Color.from_hsv(rng.randf(), 0.7, 0.9)
-			for y in range(cell):
-				for x in range(cell):
-					image.set_pixel(gx * cell + x, gy * cell + y, color)
-
-## Диагональные полосы двух случайных цветов.
-static func _stripes(image: Image, rng: RandomNumberGenerator) -> void:
-	var a := Color.from_hsv(rng.randf(), 0.8, 0.95)
-	var b := Color.from_hsv(rng.randf(), 0.8, 0.6)
-	var width := 3 + rng.randi() % 4
-	for y in range(SIZE):
-		for x in range(SIZE):
-			var color := a if ((x + y) / width) % 2 == 0 else b
+static func _fallback_image(item_id: String) -> Image:
+	var image := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.2, 0.2, 0.25, 1.0))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(item_id)
+	var color := Color.from_hsv(rng.randf(), 0.6, 0.9)
+	for y in range(8, 24):
+		for x in range(8, 24):
 			image.set_pixel(x, y, color)
-
-## Случайные цветные точки на тёмном фоне.
-static func _splatter(image: Image, rng: RandomNumberGenerator) -> void:
-	for i in range(60):
-		var color := Color.from_hsv(rng.randf(), 0.8, 0.95)
-		var cx := rng.randi() % SIZE
-		var cy := rng.randi() % SIZE
-		var radius := 1 + rng.randi() % 3
-		for y in range(maxi(0, cy - radius), mini(SIZE, cy + radius + 1)):
-			for x in range(maxi(0, cx - radius), mini(SIZE, cx + radius + 1)):
-				if Vector2(x, y).distance_to(Vector2(cx, cy)) <= radius:
-					image.set_pixel(x, y, color)
-
-static func _border(image: Image, rng: RandomNumberGenerator) -> void:
-	var color := Color.from_hsv(rng.randf(), 0.3, 1.0)
-	for i in range(SIZE):
-		image.set_pixel(i, 0, color)
-		image.set_pixel(i, SIZE - 1, color)
-		image.set_pixel(0, i, color)
-		image.set_pixel(SIZE - 1, i, color)
+	return image

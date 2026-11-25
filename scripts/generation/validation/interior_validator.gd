@@ -114,8 +114,8 @@ func _validate_special_rooms(issues: Array, room_id: String, room: Dictionary, t
 		for item in items:
 			if int(item.get("price", 0)) > 0:
 				priced += 1
-		if priced < 2:
-			_add(issues, "SHOP_GOODS_MISSING", "error", "shop must have at least two priced goods", room_id)
+		if priced < 1:
+			_add(issues, "SHOP_GOODS_MISSING", "error", "shop must have at least one priced good", room_id)
 
 func _tile(tiles: Array, cell_value: Variant) -> int:
 	var c := Types.cell_from(cell_value)

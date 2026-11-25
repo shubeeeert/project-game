@@ -422,11 +422,11 @@ static func _ensure_shop_goods(room: Dictionary, floor_index: int, repairs: Arra
 	for item in room.get("items", []):
 		if int(item.get("price", 0)) > 0:
 			priced += 1
-	if priced >= 2:
+	if priced >= 1:
 		return
 	var pedestals: Array = room.get("zones", {}).get("reward", []).duplicate()
 	var index := 0
-	while priced < 2 and index < pedestals.size():
+	while priced < 1 and index < pedestals.size():
 		var cell_value: Dictionary = Types.cell_from(pedestals[index])
 		index += 1
 		var occupied := false
@@ -436,17 +436,19 @@ static func _ensure_shop_goods(room: Dictionary, floor_index: int, repairs: Arra
 				break
 		if occupied:
 			continue
+		var reward_item_id := String(Items.ITEM_IDS[priced % Items.ITEM_IDS.size()])
 		room["items"] = room.get("items", [])
 		room["items"].append({
-			"id": Ids.item_id(floor_index, String(room.get("id", "")), "shop_goods_repair", index),
-			"type": "shop_goods",
+			"id": Ids.item_id(floor_index, String(room.get("id", "")), "shop_" + reward_item_id + "_repair", index),
+			"type": reward_item_id,
 			"kind": "shop_good",
 			"cell": cell_value,
 			"cost": 0,
-			"value": 10,
-			"price": 20,
+			"value": 1,
+			"price": 100,
 			"rarity": "common",
-			"tags": ["shop"]
+			"tags": ["shop", "item"],
+			"reward_item_id": reward_item_id
 		})
 		priced += 1
 		_add_repair(repairs, "SHOP_GOODS_ADDED", "missing shop goods restored", String(room.get("id", "")))

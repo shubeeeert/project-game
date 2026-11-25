@@ -944,7 +944,7 @@ func _check_ui_hud() -> void:
 	var timer := ui.get_node_or_null("RunTimerLabel") as Label
 	_check(timer != null and timer.text == game_manager.format_time(game_manager.run_time),
 		"HUD timer must use minutes:seconds:milliseconds at top center")
-	var difficulty := ui.get_node_or_null("DifficultyLabel") as Label
+	var difficulty := ui.get_node_or_null("MinimapContainer/Minimap/DifficultyLabel") as Label
 	_check(difficulty != null and difficulty.text == "Сложность: %.1f" % game_manager.get_difficulty(),
 		"HUD must show current difficulty under the floor map")
 	ui.free()

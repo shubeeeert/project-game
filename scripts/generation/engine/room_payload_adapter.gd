@@ -127,7 +127,8 @@ static func _items(room: Dictionary) -> Array:
 			"price": int(entry.get("price", 0)),
 			"rarity": String(entry.get("rarity", "common")),
 			"slot": index,
-			"tags": entry.get("tags", []).duplicate()
+			"tags": entry.get("tags", []).duplicate(),
+			"reward_item_id": String(entry.get("reward_item_id", ""))
 		})
 	return result
 

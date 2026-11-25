@@ -45,8 +45,8 @@ func _build_label() -> void:
 	_label.name = "Title"
 	_label.text = title
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_label.position = Vector2(-72, 28)
-	_label.size = Vector2(144, 20)
+	_label.position = Vector2(-72, 24)
+	_label.size = Vector2(144, 32)
 	_label.add_theme_font_size_override("font_size", 10)
 	_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.92))
 	_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
@@ -61,7 +61,11 @@ func _title() -> String:
 		"chest":
 			return "СУНДУК: 1 КЛЮЧ"
 		"shop_good":
-			return "%d монет" % GameManager.scaled_price(int(data.get("price", 0)))
+			var item_id := String(data.get("reward_item_id", ""))
+			var price := GameManager.scaled_price(int(data.get("price", 100)))
+			if item_id != "":
+				return "%s\n%d монет" % [Items.display_name(item_id), price]
+			return "%d монет" % price
 		"shop_key":
 			return "КЛЮЧ: %d монет" % GameManager.scaled_price(int(data.get("price", 50)))
 		"shop_npc":
@@ -91,15 +95,21 @@ func _draw() -> void:
 			draw_rect(Rect2(22, -4, 6, 12), Color(0.98, 0.85, 0.3, 0.95))
 			draw_circle(Vector2(-2, -2), 5.0, Color(0.55, 0.4, 0.05, 0.9))
 		"shop_good":
-			var color := Color(0.9, 0.3, 0.25, 1.0)
-			match int(data.get("slot", 0)) % 3:
-				1:
-					color = Color(0.3, 0.9, 0.4, 1.0)
-				2:
-					color = Color(0.35, 0.55, 1.0, 1.0)
 			draw_rect(Rect2(-16, 6, 32, 10), Color(0.4, 0.4, 0.45, 0.95))
-			draw_circle(Vector2(0, -6), 11.0, color)
-			draw_circle(Vector2(-4, -10), 4.0, Color(1, 1, 1, 0.45))
+			var item_id := String(data.get("reward_item_id", ""))
+			if item_id != "":
+				var tex := ItemSprites.texture_for(item_id)
+				if tex:
+					draw_texture_rect(tex, Rect2(-16, -22, 32, 32), false)
+			else:
+				var color := Color(0.9, 0.3, 0.25, 1.0)
+				match int(data.get("slot", 0)) % 3:
+					1:
+						color = Color(0.3, 0.9, 0.4, 1.0)
+					2:
+						color = Color(0.35, 0.55, 1.0, 1.0)
+				draw_circle(Vector2(0, -6), 11.0, color)
+				draw_circle(Vector2(-4, -10), 4.0, Color(1, 1, 1, 0.45))
 		"shop_npc":
 			draw_circle(Vector2(0, -8), 12.0, Color(0.25, 0.55, 0.3, 0.95))
 			draw_circle(Vector2(0, -8), 7.0, Color(0.95, 0.8, 0.65, 1.0))
@@ -122,6 +132,7 @@ func _on_body_entered(body: Node2D) -> void:
 	match feature_kind:
 		"shop_npc":
 			GameManager.show_message("Магазин: подойди к товару и заплати монетами.")
+			return
 		"shop_good":
 			_try_buy(body)
 			return
@@ -186,27 +197,20 @@ func _open_chest(body: Node2D) -> void:
 		gold_reward, heal_amount, Items.display_name(dropped_item)])
 
 func _try_buy(body: Node2D) -> void:
-	var price := GameManager.scaled_price(maxi(0, int(data.get("price", 0))))
+	var price := GameManager.scaled_price(maxi(0, int(data.get("price", 100))))
 	if price > 0 and not GameManager.spend_gold(price):
 		GameManager.show_message("Не хватает монет: нужно %d, есть %d." % [price, GameManager.gold])
 		return
 
-	var slot := int(data.get("slot", 0)) % 3
-	var reward_text := ""
-	match slot:
-		0:
-			_heal(body, 50)
-			reward_text = "+50 HP"
-		1:
-			_add_max_health(body, 20)
-			reward_text = "+20 к максимуму HP"
-		_:
-			_add_damage(body, 2)
-			reward_text = "+2 к урону"
+	var reward_item_id := String(data.get("reward_item_id", ""))
+	if reward_item_id == "":
+		reward_item_id = Items.random_item_id()
+	if body.has_method("add_item"):
+		body.add_item(reward_item_id)
 
 	MapGenerator.mark_item_claimed(String(data.get("item_id", "")))
 	_used = true
-	GameManager.show_message("Куплено за %d: %s" % [price, reward_text])
+	GameManager.show_message("Куплено за %d: %s" % [price, Items.display_name(reward_item_id)])
 	activated.emit(feature_kind)
 	queue_free()
 

@@ -52,19 +52,34 @@ static func _place_reward_item(room, floor_index: int, pools: RefCounted, rng: R
 	Factory.reserve(occupied, cell_value)
 
 static func _place_shop(room, floor_index: int, pools: RefCounted, rng: RefCounted, occupied: Dictionary, reachable: Variant) -> void:
-	var goods: Array = pools.eligible_items(floor_index, "shop_good")
-	if goods.is_empty():
-		goods = pools.eligible_items(floor_index)
-	if goods.is_empty():
-		return
-	for i in range(3):
-		var entry: Dictionary = goods[i % goods.size()]
+	var count := 2
+	var roll := float(rng.next_float()) if rng != null and rng.has_method("next_float") else 0.5
+	if roll < 0.15:
+		count = 3
+	elif roll < 0.55:
+		count = 1
+	var pool: Array = Items.ITEM_IDS.duplicate()
+	if rng != null and rng.has_method("shuffle"):
+		rng.shuffle(pool)
+	else:
+		pool.sort()
+	for i in range(mini(count, pool.size())):
+		var reward_item_id := String(pool[i])
 		var cell_value := _item_cell(room, rng, occupied, reachable)
 		if cell_value.is_empty():
 			break
-		var price := int(entry.get("value", 10)) * 2 + floor_index * 2
-		var item := Factory.make_item(floor_index, room, entry, cell_value, room.get("items", []).size(), price)
-		item["kind"] = "shop_good"
+		var item := {
+			"id": Ids.item_id(floor_index, String(room.get("id", "")), "shop_" + reward_item_id, i),
+			"type": reward_item_id,
+			"kind": "shop_good",
+			"cell": Types.cell_from(cell_value),
+			"cost": 0,
+			"value": 1,
+			"price": 100,
+			"rarity": "common",
+			"tags": ["shop", "item"],
+			"reward_item_id": reward_item_id
+		}
 		room["items"].append(item)
 		Factory.reserve(occupied, cell_value)
 
