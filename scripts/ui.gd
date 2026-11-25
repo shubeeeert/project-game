@@ -26,7 +26,6 @@ var _floor_label: Label = null
 var _gold_label: Label = null
 var _keys_label: Label = null
 var _timer_label: Label = null
-var _difficulty_label: Label = null
 var _message_label: Label = null
 var _message_token: int = 0
 
@@ -55,7 +54,7 @@ func _ready() -> void:
 	call_deferred("_initialize_components")
 
 # ============================================
-# HUD ЗАБЕГА: ЭТАЖ / МОНЕТЫ / КЛЮЧИ / ТАЙМЕР / СЛОЖНОСТЬ / СООБЩЕНИЯ
+# HUD ЗАБЕГА: ЭТАЖ / МОНЕТЫ / КЛЮЧИ / ТАЙМЕР / СООБЩЕНИЯ
 # ============================================
 func _build_status_hud() -> void:
 	var panel := VBoxContainer.new()
@@ -85,16 +84,6 @@ func _build_status_hud() -> void:
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_timer_label.add_theme_font_size_override("font_size", 22)
 	add_child(_timer_label)
-
-	_difficulty_label = _make_status_label("Сложность: 0.0")
-	_difficulty_label.name = "DifficultyLabel"
-	_difficulty_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_difficulty_label.offset_left = -220
-	_difficulty_label.offset_top = 48
-	_difficulty_label.offset_right = -16
-	_difficulty_label.offset_bottom = 74
-	_difficulty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	add_child(_difficulty_label)
 
 	_message_label = Label.new()
 	_message_label.name = "MessageLabel"
@@ -188,14 +177,12 @@ func _connect_game_signals() -> void:
 	GameManager.gold_changed.connect(_on_gold_changed)
 	GameManager.keys_changed.connect(_on_keys_changed)
 	GameManager.run_time_changed.connect(_on_run_time_changed)
-	GameManager.difficulty_changed.connect(_on_difficulty_changed)
 	GameManager.message_shown.connect(_on_message_shown)
 
 	_on_floor_changed(GameManager.current_floor)
 	_on_gold_changed(GameManager.gold)
 	_on_keys_changed(GameManager.get_key_count())
 	_on_run_time_changed(GameManager.run_time)
-	_on_difficulty_changed(GameManager.get_difficulty())
 
 func _on_floor_changed(floor_index: int) -> void:
 	if _floor_label:
@@ -212,10 +199,6 @@ func _on_keys_changed(count: int) -> void:
 func _on_run_time_changed(elapsed: float) -> void:
 	if _timer_label:
 		_timer_label.text = GameManager.format_time(elapsed)
-
-func _on_difficulty_changed(value: float) -> void:
-	if _difficulty_label:
-		_difficulty_label.text = "Сложность: %.1f" % maxf(0.0, value)
 
 func _on_message_shown(text: String) -> void:
 	if _message_label == null:

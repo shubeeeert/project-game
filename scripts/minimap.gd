@@ -6,6 +6,7 @@ class_name Minimap
 @export var cell_spacing: float = 3.0
 @export var border_width: float = 2.0
 @export var max_visible_range: int = 4
+@export var frame_width: float = 2.0
 
 # ⭐ ЦВЕТА
 const COLOR_CURRENT: Color = Color(1.0, 1.0, 1.0, 1.0)
@@ -17,11 +18,14 @@ const COLOR_TREASURE: Color = Color(0.95, 0.78, 0.25, 1.0)
 const COLOR_SHOP: Color = Color(0.35, 0.6, 1.0, 1.0)
 const COLOR_BORDER: Color = Color(1.0, 1.0, 1.0, 0.9)
 const COLOR_BACKGROUND: Color = Color(0.0, 0.0, 0.0, 0.5)
+const COLOR_FRAME: Color = Color(0.0, 0.0, 0.0, 1.0)
 
 # ⭐ СОСТОЯНИЕ
 var _room_cells: Dictionary = {}  # Vector2i → ColorRect
 var _border_rect: ColorRect = null
 var _bg_rect: ColorRect = null
+var _frame_rect: ColorRect = null
+var _difficulty_label: Label = null
 
 func _ready() -> void:
 	# Настраиваем позицию и размер через код
@@ -29,12 +33,43 @@ func _ready() -> void:
 	size = Vector2(170, 170)
 	
 	RoomManager.room_changed.connect(_on_room_changed)
+	if not GameManager.difficulty_changed.is_connected(_on_difficulty_changed):
+		GameManager.difficulty_changed.connect(_on_difficulty_changed)
+	_create_difficulty_label()
 	_rebuild_map()
+	_on_difficulty_changed(GameManager.get_difficulty())
 	
 	print("=== MINIMAP READY ===")
 
 func _on_room_changed(new_pos: Vector2i, room_type: String) -> void:
 	_rebuild_map()
+
+func _create_difficulty_label() -> void:
+	if _difficulty_label and is_instance_valid(_difficulty_label):
+		return
+	_difficulty_label = Label.new()
+	_difficulty_label.name = "DifficultyLabel"
+	_difficulty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_difficulty_label.add_theme_font_size_override("font_size", 16)
+	_difficulty_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
+	_difficulty_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	_difficulty_label.add_theme_constant_override("shadow_offset_x", 1)
+	_difficulty_label.add_theme_constant_override("shadow_offset_y", 1)
+	_difficulty_label.text = "Сложность: 0.0"
+	add_child(_difficulty_label)
+
+func _on_difficulty_changed(value: float) -> void:
+	if _difficulty_label and is_instance_valid(_difficulty_label):
+		_difficulty_label.text = "Сложность: %.1f" % maxf(0.0, value)
+
+func _update_difficulty_label_position() -> void:
+	if not (_difficulty_label and is_instance_valid(_difficulty_label)):
+		return
+	var ref: Control = _frame_rect if _frame_rect and is_instance_valid(_frame_rect) else _bg_rect
+	if not (ref and is_instance_valid(ref)):
+		return
+	_difficulty_label.position = Vector2(ref.position.x, ref.position.y + ref.size.y + 4)
+	_difficulty_label.size = Vector2(ref.size.x, 24)
 
 func _rebuild_map() -> void:
 	var rooms = MapGenerator.rooms
@@ -80,17 +115,32 @@ func _rebuild_map() -> void:
 	var map_width = (max_x - min_x + 1) * (cell_size + cell_spacing) - cell_spacing
 	var map_height = (max_y - min_y + 1) * (cell_size + cell_spacing) - cell_spacing
 	
-	# ⭐ ШАГ 3: Обновляем или создаём фон
+	# ⭐ ШАГ 3: Обновляем или создаём фон и чёрную рамку
+	var bg_size := Vector2(map_width + 10, map_height + 10)
+	var bg_pos := Vector2(-5, -5)
 	if _bg_rect and is_instance_valid(_bg_rect):
-		_bg_rect.size = Vector2(map_width + 10, map_height + 10)
-		_bg_rect.position = Vector2(-5, -5)
+		_bg_rect.size = bg_size
+		_bg_rect.position = bg_pos
 	else:
 		_bg_rect = ColorRect.new()
 		_bg_rect.color = COLOR_BACKGROUND
-		_bg_rect.size = Vector2(map_width + 10, map_height + 10)
-		_bg_rect.position = Vector2(-5, -5)
+		_bg_rect.size = bg_size
+		_bg_rect.position = bg_pos
 		add_child(_bg_rect)
-		move_child(_bg_rect, 0)
+	if _frame_rect and is_instance_valid(_frame_rect):
+		_frame_rect.size = bg_size + Vector2(frame_width * 2, frame_width * 2)
+		_frame_rect.position = bg_pos - Vector2(frame_width, frame_width)
+	else:
+		_frame_rect = ColorRect.new()
+		_frame_rect.color = COLOR_FRAME
+		_frame_rect.size = bg_size + Vector2(frame_width * 2, frame_width * 2)
+		_frame_rect.position = bg_pos - Vector2(frame_width, frame_width)
+		add_child(_frame_rect)
+	# Рамка позади фона, фон позади комнат
+	if _frame_rect and is_instance_valid(_frame_rect):
+		move_child(_frame_rect, 0)
+	if _bg_rect and is_instance_valid(_bg_rect):
+		move_child(_bg_rect, 1 if _frame_rect and is_instance_valid(_frame_rect) else 0)
 	
 	# ⭐ ШАГ 4: Обновляем или создаём квадраты комнат
 	for pos in visible_rooms:
@@ -136,6 +186,7 @@ func _rebuild_map() -> void:
 			# Если эта комната больше не текущая, удаляем обводку
 			# (обводка обновится для новой текущей комнаты)
 			pass
+	_update_difficulty_label_position()
 
 func _room_color(domain_type: String) -> Color:
 	match domain_type:
